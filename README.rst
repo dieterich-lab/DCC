@@ -15,6 +15,8 @@ install.
 
 1) From git clone
 
+.. code-block:: bash
+
   $ git clone git@github.com:dieterich-lab/DCC.git
   
   $ cd DCC
