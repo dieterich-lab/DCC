@@ -13,9 +13,7 @@ DCC depences on pysam, pybedtools, numpy.
 The installation process of DCC with automatically check for the dependencies, if any dependence missing from path, it will automatically
 install.
 
-1) From git clone
-
-.. code-block:: bash
+1) From git clone::
 
   $ git clone git@github.com:dieterich-lab/DCC.git
   $ cd DCC
