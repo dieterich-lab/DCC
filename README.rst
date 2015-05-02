@@ -13,7 +13,7 @@ DCC depences on pysam, pybedtools, numpy.
 The installation process of DCC with automatically check for the dependencies, if any dependence missing from path, it will automatically
 install.
 
-1) From git clone::
+1) From git clone
 
   $ git clone git@github.com:dieterich-lab/DCC.git
   $ cd DCC
@@ -21,8 +21,3 @@ install.
   
 2) Download from github, on the write site of https://github.com/dieterich-lab/DCC, click Download Zip. Unzip the file, do the
 same as 1.
-
-========================
-Usage
-=======================
-1) Map RNA-seq data with STAR (Dobin et al., 2013)
