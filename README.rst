@@ -30,3 +30,7 @@ same as 1.
 Usage
 =====
 1) Map RNA-seq data with STAR (Dobin et al., 2013)
+
+.. code-block:: bash
+
+STAR --runThreadN 10   --genomeDir /data/Indices/STAR/Rattus_norvegicus/rn6  --outSAMtype BAM Unsorted  --genomeLoad LoadAndKeep   --readFilesIn /data/projects/Rat/${GSM}/${GSM}.fastq.gz   --readFilesCommand zcat   --outFileNamePrefix ${GSM} --outReadsUnmapped Fastx  --outSJfilterOverhangMin 15 15 15 15 --alignSJoverhangMin 15 --alignSJDBoverhangMin 15 --seedSearchStartLmax 30  --outFilterMultimapNmax 20   --outFilterScoreMin 1   --outFilterMatchNmin 1   --outFilterMismatchNmax 2  --chimSegmentMin 15    --chimScoreMin 15   --chimScoreSeparation 10  --chimJunctionOverhangMin 15
