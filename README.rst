@@ -23,7 +23,7 @@ install.
   
   $ python setup.py install
   
-2) Download from github, on the write site of https://github.com/dieterich-lab/DCC, click Download Zip. Unzip the file, do the
+2) Download from github, on the write site of https://github.com/dieterich-lab/DCC, click `Download Zip'. Unzip the file, do the
 same as 1.
 
 =====
@@ -33,4 +33,12 @@ Usage
 
 .. code-block:: bash
 
-  $ STAR --runThreadN 10   --genomeDir /data/Indices/STAR/Rattus_norvegicus/rn6  --outSAMtype BAM Unsorted  --genomeLoad LoadAndKeep   --readFilesIn /data/projects/Rat/${GSM}/${GSM}.fastq.gz   --readFilesCommand zcat   --outFileNamePrefix ${GSM} --outReadsUnmapped Fastx  --outSJfilterOverhangMin 15 15 15 15 --alignSJoverhangMin 15 --alignSJDBoverhangMin 15 --seedSearchStartLmax 30  --outFilterMultimapNmax 20   --outFilterScoreMin 1   --outFilterMatchNmin 1   --outFilterMismatchNmax 2  --chimSegmentMin 15    --chimScoreMin 15   --chimScoreSeparation 10  --chimJunctionOverhangMin 15
+  $ STAR --runThreadN 10   --genomeDir <genome directory>  --outSAMtype BAM Unsorted  --genomeLoad LoadAndKeep   --readFilesIn SamplePairedRead_1.fastq.gz  SamplePairedRead_2.fastq.gz   --readFilesCommand zcat   --outFileNamePrefix <sample prefix> --outReadsUnmapped Fastx  --outSJfilterOverhangMin 15 15 15 15 --alignSJoverhangMin 15 --alignSJDBoverhangMin 15 --seedSearchStartLmax 30  --outFilterMultimapNmax 20   --outFilterScoreMin 1   --outFilterMatchNmin 1   --outFilterMismatchNmax 2  --chimSegmentMin 15    --chimScoreMin 15   --chimScoreSeparation 10  --chimJunctionOverhangMin 15
+
+2) Detect circRNAs from chimeric.out.junction file
+
+.. code-block:: bash
+
+  $ DCC
+
+If DCC is not in you path
