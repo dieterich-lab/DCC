@@ -107,7 +107,7 @@ setup(
             'DCC=DCC.main',
         ],
     },
-   scripts = [
-    'scripts/DCC',
-  ]
+#   scripts = [
+#    'scripts/DCC',
+#  ]
 )
