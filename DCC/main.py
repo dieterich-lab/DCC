@@ -162,6 +162,8 @@ def main():
                 sort.sort_count('tmp_findcirc',output,strand=False)
         
         # Fix2chimera problem by STAR
+        print ('Fix 2 chimera in one read/read paire problem.')
+        logging.info('Fix 2 chimera in one read/read paire problem.')
         fixedInput = fixall(options.Input,options.mate1,options.mate2)
                            
         for indx, files in enumerate(fixedInput):
