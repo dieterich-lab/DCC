@@ -47,8 +47,7 @@ def main():
     #group.add_argument("-gf", "--getfasta", dest="getfasta",
     #                  help="Get fasta file of circular RNAs. If a exon annotation file is provided, the circular RNA sequence will only contain annotated exons, otherwise whole sequence.")
     group.add_argument("-Pi", "--pi", action='store_true', dest="pairedendindependent", default=False,
-                    help="Whether or not the data is paired end, if yes, paired end information is used for filtering:\
-                    Boolean")
+                    help="Whether or not you have maped the PE data mates seperately. Boolean")
     group.add_argument("-mt1", "--mate1", dest="mate1", nargs = '+',
                     help="For paired end date, Chimeric.out.juntion file from mate1 independent mapping result.")  
     group.add_argument("-mt2", "--mate2", dest="mate2", nargs = '+',
