@@ -88,7 +88,6 @@ def main():
     
                                         
     options= parser.parse_args()
-
     
     timestr = time.strftime("%Y%m%d-%H%M%S")
     logging.basicConfig(filename='main.log'+timestr, filemode='w',level=logging.DEBUG,format='%(asctime)s %(message)s')
@@ -133,7 +132,7 @@ def main():
         circfiles = [] # A list for .circRNA file names
         
         if options.pairedendindependent:
-            print '===== Please make sure that you mapped both the paired mates togethor and seperately, and run the fixation scripts!!! ====='
+            print '===== Please make sure that you mapped both the paired mates togethor and seperately!!! ====='
             logging.info("===== Please make sure that you mapped both the paired mates togethor and seperately, and run the fixation scripts!!! =====")
         
         
@@ -149,7 +148,7 @@ def main():
                 else:
                     f.findcirc('tmp_nonduplicates','tmp_normalcircs',strand=False)
                 # Merge small and normal circles
-                mergefiles(('tmp_smallcircs','tmp_normalcircs'),'tmp_findcirc')
+                mergefiles('tmp_findcirc','tmp_smallcircs','tmp_normalcircs')
             else:
                 if strand:
                     f.findcirc(files,'tmp_findcirc',strand=True)
@@ -179,7 +178,7 @@ def main():
                 logging.info( 'strand' )
                 print 'strand'
                 
-                if options.pairedend:
+                if options.pairedendindependent:
                     wrapfindcirc(files,circfilename,strand=True,pairdendindependent=True)
                 else:
                     wrapfindcirc(files,circfilename,strand=True,pairdendindependent=False)
@@ -370,6 +369,7 @@ def fixall(joinedfnames,mate1filenames,mate2filenames):
     else:
         logging.error('The number of input mate1, mate2 and joined mapping files are different.')
         print ('The number of input mate1, mate2 and joined mapping files are different.')
+
     return outputs
     
 
@@ -382,14 +382,12 @@ def logdeleted(deleted):
     for itm in deleted:
         logging.info('File'+' '+itm+' '+'Deleted!')
 
-def mergefiles(files,output):
-    # files is a list of file names
-    with open(output,'w') as outfile:
-        for fname in files:
-            with open(fname) as infile:
-                for line in infile:
-                    outfile.write(line)
-        
+def mergefiles(output,*fnames):
+    import shutil
+    destination = open(output,'wb')
+    for fname in fnames:
+        shutil.copyfileobj(open(fname,'rb'), destination)
+    destination.close()        
         
 if __name__ == "__main__":
     main()

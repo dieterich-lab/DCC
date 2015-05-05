@@ -1,8 +1,6 @@
 #!/bin/python
 
-from findcircRNA import Findcirc
 # If paire end data are used, this module fix the rolling circRNA could not detect by single run problem.
-fc = Findcirc(1,1,1)
 
 class Fix2Chimera(object):
 
@@ -57,11 +55,11 @@ class Fix2Chimera(object):
 #	def printduplicated(self,filein,basedon):
 
 	def concatenatefiles(self,output_file,*fnames):
-		with open(output_file,'w') as output:
-			for fname in fnames:
-				with open(fname) as infile:
-					for line in infile:
-						output.write(line)
+	    import shutil
+	    destination = open(output_file,'wb')
+	    for fname in fnames:
+	        shutil.copyfileobj(open(fname,'rb'), destination)
+	    destination.close() 
 
 	def fixation(self,mate1,mate2,joined,output_file):
 		# take chimeric.junction.out from two mate mapping and mate-joined mapping, 
@@ -72,10 +70,31 @@ class Fix2Chimera(object):
 
 		# Second, merge two mate files, select duplicates
 		self.concatenatefiles('tmp_merged',mate1,mate2+'.fixed')
-		fc.sepDuplicates('tmp_merged','tmp_twochimera','tmp_onechimera')
+		self.printduplicates('tmp_merged','tmp_twochimera',field=10)
 		self.concatenatefiles(output_file,'tmp_twochimera',joined)
 
-
-
+	def printduplicates(self,infile,dupfile,field=10):
+		inputfile=open(infile,'r')
+		dup = open(dupfile,'w')
+		seen = dict()
+		# check read name suffice
+		suffice = False
+		if len(inputfile.readline().split('\t')[field-1].split('.')[-1]) == 1:
+			suffice = True
+		for line in inputfile:
+			line_split = line.split('\t')
+			if suffice:
+				key = line_split[field-1][:-2]
+			else:
+				key = line_split[field-1]
+			if key in seen:
+				if not seen[key][0]:
+					dup.write(seen[key][1])
+					seen[key] = (True, seen[key][1])
+				dup.write(line)
+			else:
+				seen[key] = (False, line)
+		inputfile.close()
+		dup.close()
 
 
