@@ -132,7 +132,7 @@ def main():
         
         circfiles = [] # A list for .circRNA file names
         
-        if options.pairdendindependent:
+        if options.pairedendindependent:
             print '===== Please make sure that you mapped both the paired mates togethor and seperately, and run the fixation scripts!!! ====='
             logging.info("===== Please make sure that you mapped both the paired mates togethor and seperately, and run the fixation scripts!!! =====")
         
