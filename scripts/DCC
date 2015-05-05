@@ -1,0 +1,5 @@
+#!/usr/bin/env python
+
+import DCC.main
+
+DCC.main.main()

@@ -51,7 +51,7 @@ class Findcirc(object):
         lines = [] # A list of all lines
         suffice = False
         for line in junctionfile:
-            if line.split('\t')[9].split('.')[-1] == '1' or line.split('\t')[9].split('.') == '2':
+            if len(line.split('\t')[9].split('.')[-1]) == 1:
                 suffice = True
             if suffice:
                 readname = '.'.join(line.split('\t')[9].split('.')[:-1])
@@ -64,9 +64,9 @@ class Findcirc(object):
             if reads.count(read) == 2:
                 dup.write(lines[indx])
             elif reads.count(read) > 2:
-                print 'Read %s has more than 2 count, please check.' % read
+                print 'Read %s has more than 2 count.' % read
                 try:
-                    logging.warning('Read %s has more than 2 count, please check.' % read)
+                    logging.warning('Read %s has more than 2 count.' % read)
                 except NameError:
                     pass
             else:
