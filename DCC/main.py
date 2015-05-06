@@ -161,8 +161,8 @@ def main():
                 sort.sort_count('tmp_findcirc',output,strand=False)
         
         # Fix2chimera problem by STAR
-        print ('Fix 2 chimera in one read/read paire problem.')
-        logging.info('Fix 2 chimera in one read/read paire problem.')
+        print ('Collect chimera from mates-seperate mapping.')
+        logging.info('Collect chimera from mates-seperate mapping.')
         fixedInput = fixall(options.Input,options.mate1,options.mate2)
                            
         for indx, files in enumerate(fixedInput):
@@ -262,15 +262,15 @@ def main():
         else:
             from pkgutil import get_data
             rep_file = get_data('DCC', 'datafiles/Repeats')
-            count,indx = filt.readcirc(file2filter,coorfile)
-            logging.info('Filter by read counts.')
-            count0,indx0 = filt.filtercount(count,indx) # result of first filtering by read counts
-            filt.makeregion(indx0)
-            logging.info('Filter by non repetitive region.')
-            nonrep_left,nonrep_right = filt.nonrep_filter('tmp_left','tmp_right',rep_file)
-            filt.intersectLeftandRightRegions(nonrep_left,nonrep_right,indx0,count0)
-            if not options.chrM and not options.filterbygene:
-                filt.sortOutput('tmp_unsortedWithChrM','CircRNACount',samplelist,'CircCoordinates',split=True)
+        count,indx = filt.readcirc(file2filter,coorfile)
+        logging.info('Filter by read counts.')
+        count0,indx0 = filt.filtercount(count,indx) # result of first filtering by read counts
+        filt.makeregion(indx0)
+        logging.info('Filter by non repetitive region.')
+        nonrep_left,nonrep_right = filt.nonrep_filter('tmp_left','tmp_right',rep_file)
+        filt.intersectLeftandRightRegions(nonrep_left,nonrep_right,indx0,count0)
+        if not options.chrM and not options.filterbygene:
+            filt.sortOutput('tmp_unsortedWithChrM','CircRNACount',samplelist,'CircCoordinates',split=True)
             
         # Filter chrM, if no further filtering, return 'CircRNACount' and 'CircCoordinates', else return 'tmp_unsortedNoChrM'
         if options.chrM:
