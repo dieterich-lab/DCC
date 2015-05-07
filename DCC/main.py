@@ -105,7 +105,7 @@ def main():
 
     logging.info(' '.join(sys.argv))
     logging.info('Program Started')
-
+      
     # Get input file names
     filenames = [getfilename(name) for name in options.Input]
     samplelist = '\t'.join(filenames)
@@ -260,8 +260,8 @@ def main():
         if options.rep_file:
             rep_file = options.rep_file
         else:
-            from pkgutil import get_data
-            rep_file = get_data('DCC', 'datafiles/Repeats')
+            from pkg_resources import resource_filename          
+            rep_file = resource_filename('DCC', 'data/DCC.Repeats')
         count,indx = filt.readcirc(file2filter,coorfile)
         logging.info('Filter by read counts.')
         count0,indx0 = filt.filtercount(count,indx) # result of first filtering by read counts

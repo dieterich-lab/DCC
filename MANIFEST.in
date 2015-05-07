@@ -1,4 +1,4 @@
 include DESCRIPTION.rst
 include README.rst
 include LICENSE
-recursive-include datafiles/Repeats
+recursive-include data/Repeats
