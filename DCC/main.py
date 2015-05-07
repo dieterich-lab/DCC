@@ -352,7 +352,7 @@ def main():
 
     # Delte temp files
     if not options.debug:
-        p3 = r'tmp\.*'
+        p3 = r'^tmp_\.*'
         deleted = cm.deletfile(os.getcwd(),p3)
         logdeleted(deleted)
 
