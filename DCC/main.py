@@ -85,7 +85,6 @@ def main():
     #group.add_argument("-seq", "--seq", dest="seq",         
     #                  help="Get circRNA sequence as fasta file.")
     parser.add_argument_group(group)
-    
                                         
     options= parser.parse_args()
     
@@ -301,16 +300,20 @@ def main():
         import genecount as GC
         # import the list of bamfile names as a file
         if not options.bam:
-            print 'Please provide bam files, program will not count host gene expression.'
-            logging.warning( 'Please provide bam files, program will not count host gene expression.' )
+            #print 'Please provide bam files, program will not count host gene expression.'
+            logging.info( 'Look for mapped bam files in the same directory as chimeric.out.junction files.' )
+            bamfiles = convertjunctionfile2bamfile(options.Input)
+        else:
+            bamfiles = options.bam
             
         if not options.refseq:
             print 'Please provide reference sequence, program will not count host gene expression.'
-            logging.warning( 'Please provide reference sequence, program will not count host gene expression.' )
+            logging.warning('Please provide reference sequence, program will not count host gene expression.')
             
-        if options.bam and options.refseq:
+            
+        if options.refseq:
             # check whether the number of bamfiles is equale to the number of chimeric.junction.out files
-            if len(options.bam) != len(options.Input):
+            if len(bamfiles) != len(options.Input):
                 logging.error( "The number of bam files does not match with chimeric junction files." )
                 sys.exit("The number of bam files does not match with chimeric junction files.")
             else:
@@ -328,7 +331,7 @@ def main():
                     linearfiles.append(linearfilename)
 
 
-                for indx, bamfile in enumerate(options.bam):
+                for indx, bamfile in enumerate(bamfiles):
                     if options.circ:
                         logging.info('Counting linear gene expression based on provided circRNA coordinates')
                         print 'Counting linear gene expression based on provided circRNA coordinates'
@@ -388,6 +391,25 @@ def mergefiles(output,*fnames):
     for fname in fnames:
         shutil.copyfileobj(open(fname,'rb'), destination)
     destination.close()        
+
+def convertjunctionfile2bamfile(junctionfilelist):
+    
+    def getbamfname(junctionfname):
+        import re
+        import os
+        # Get the stored directory
+        dirt = '/'.join((junctionfname.split('/')[:-1]))+'/'
+        p = r'.*Aligned\..*bam'
+        for fname in os.listdir(dirt):
+            if re.match(p,fname):
+                bamfname = dirt+re.findall(p,fname)[0]
+        return bamfname
         
+    bamfnames = []       
+    for fname in junctionfilelist:
+        bamfnames.append(getbamfname(fname))
+    return bamfnames 
+
+              
 if __name__ == "__main__":
     main()
