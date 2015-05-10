@@ -23,12 +23,24 @@ install.
   
   $ python setup.py install
   
-2) Download from github, on the write site of https://github.com/dieterich-lab/DCC, click `Download Zip'. Unzip the file, do the
-same as 1.
+2) Download from github, on the write site of https://github.com/dieterich-lab/DCC, click 'Download Zip'. Unzip the file, do the same as 1.
 
-=====
+
+========
 Usage
-=====
+========
+The detection of circRNAs from RNAseq data through DCC can be summarised by three steps:
+
+1. Map RNAseq data from quality checked fastq files. For paired end data, it is recommended to map the with two pairs jointly, and **also** separately. 
+
+2. Prepare files needed by DCC. In summary, only one file is mandatory: 'junction_files'. Three other files are recommended: 'Repetitive_regions.gtf', 'mate1' and 'mate2'.
+
+3. Run DCC. 
+
+========================
+Step by step tutorial
+========================
+
 1) Map RNA-seq data with STAR (Dobin et al., 2013)
 
 .. code-block:: bash
