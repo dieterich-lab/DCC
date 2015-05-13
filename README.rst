@@ -106,6 +106,8 @@ Step by step tutorial
 
 NOTE: -F flag is mandatory, if you want do filtering on the results. All filtering steps are not mandatory, but strongly recommended.
 
+**Finished!!!**
+
 The output of DCC include: CircRNACount, CircCoordinates, LinearCount.
 
 If you only want to detect circRNA without counting host gene expression, you can do
