@@ -350,7 +350,7 @@ def main():
             logging.info('Finished combine individual linear gene expression counts')
                 
             if not options.debug:
-                deleted=cm.deletfile(os.getcwd(),linearfilename)
+                deleted=cm.deletfile(os.getcwd(),linearfiles)
                 logdeleted(deleted)
 
     # Delte temp files

@@ -2,3 +2,6 @@ include DESCRIPTION.rst
 include README.rst
 include LICENSE
 recursive-include data/Repeats
+include LICENSE data/chimeric_junctions
+include LICENSE data/mate1
+include LICENSE data/mate2
