@@ -73,16 +73,50 @@ b. (Skip when you have single end data). Mates separate mapping. Be careful that
 
 2) Detect circRNAs from chimeric.out.junction file
 
-a. It is strongly recommended to prepare a repetitive region file for filtering. You can get this file through:
+a. It is strongly recommended (but not mandatory, in case you cannot get repetitive annotation of your genome) to prepare a repetitive region file in gtf format for filtering. You can get this file through UCSC table browser: http://genome.ucsc.edu/cgi-bin/hgTables. Select your genome, select group as "Repeats" or "Variation and Repeats". For the track, I recommend chose all possible repeats and combine the results. **NOTE**: the output format should be GTF format. 
+
+b) Prepare path files to specify where is your chimeric.junction.out files are. 
+
+  First, "chimeric_junctions" file, which is file in which you specify your chimeric.junction.out file absolute paths (mates joined mapping, for paired end), one line per sample. 
+
+  Second (only if you have paired end sequencing data), "mate1" and "mate2" files. As with the "chimeric_junctions" file, which you specify where the joined mapped chimeric.junction.out files are, "mate1" and "mate2" are the files you specify where your mate1 and mate2 separately mapped chimeric.junction.out files are.
+
+  You can find example of this three files at:
+  
+.. code-block:: bash
+
+  $ <DCC directory>/DCC/data/chimeric_junctions # Mates jointly mapped chimeric.junction.out files
+  $ <DCC directory>/DCC/data/mate1 # Mate1 independently mapped chimeric.junction.out files
+  $ <DCC directory>/DCC/data/mate1 # Mate2 independently mapped chimeric.junction.out files
+
+c) After all the preparation steps, you can now run DCC for circRNA detection. If you need help on the parameters of DCC, simply do:
+
+.. code-block:: bash
+  
+  # Get help
+  $ DCC -h
+  # If somehow DCC is not included in your path, you also call DCC by:
+  $ python <DCC directory>/scripts/DCC <Options>
 
 .. code-block:: bash
 
-  $ DCC @samples -mt1 @mate1 -mt2 @mate2 -D -S -R /data/genomes/drosophila_melanogaster/BDGP5_75/BDGP5.75.RepetitiveRegions.gtf -an /data/genomes/drosophila_melanogaster/BDGP5_75/BDGP5.75.gtf -Pi -F -M -Nr 10 5 20 6 -fg -G -A /data/genomes/drosophila_melanogaster/BDGP5_75/BDGP5.75.dna.toplevel.fa
+  # Call DCC to detect circRNAs. 
 
-If DCC is not in you path, you can run DCC by:
+  $ DCC @chimeric_junctions -mt1 @mate1 -mt2 @mate2 -D -S -R <Genome repeats>.gtf -an <Genome annotation>.gtf -Pi -F -M -Nr 10 5 20 6 -fg -G -A <Genome fasta file>.fa
+
+NOTE: -F flag is mandatory, if you want do filtering on the results. All filtering steps are not mandatory, but strongly recommended.
+
+The output of DCC include: CircRNACount, CircCoordinates, LinearCount.
+
+If you only want to detect circRNA without counting host gene expression, you can do
 
 .. code-block:: bash
 
-  $ python <DCC directory>/scripts/DCC <options>
+  $ DCC @chimeric_junctions -mt1 @mate1 -mt2 @mate2 -D -S -R <Genome repeats>.gtf -an <Genome annotation>.gtf -Pi -F -M -Nr 10 5 20 6 -fg
 
+If you have your own list of circRNAs in BED format, you can cant host gene expression for your list of circRNAs using DCC by:
+
+.. code-block:: bash
+
+  $ DCC @chimeric_junctions -C <your list> -G -A <Genome fasta file>.fa
 
