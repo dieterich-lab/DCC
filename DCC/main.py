@@ -15,7 +15,7 @@ import time
 from fix2chimera import Fix2Chimera
 
 def main():
-        
+    
     parser = argparse.ArgumentParser(prog='main',formatter_class=argparse.ArgumentDefaultsHelpFormatter, fromfile_prefix_chars='@', description='Contact jun.cheng@age.mpg.de')
     
     
@@ -128,12 +128,7 @@ def main():
         f = FC.Findcirc(endTol=options.endTol,maxL=options.max,minL=options.min)
         sort = FC.Sort()
         
-        circfiles = [] # A list for .circRNA file names
-        
-        if options.pairedendindependent:
-            print '===== Please make sure that you mapped both the paired mates togethor and seperately!!! ====='
-            logging.info("===== Please make sure that you mapped both the paired mates togethor and seperately, and run the fixation scripts!!! =====")
-        
+        circfiles = [] # A list for .circRNA file names      
         
         def wrapfindcirc(files,output,strand=True,pairdendindependent=True):
             if pairdendindependent:
@@ -159,12 +154,18 @@ def main():
             else:
                 sort.sort_count('tmp_findcirc',output,strand=False)
         
-        # Fix2chimera problem by STAR
-        print ('Collect chimera from mates-seperate mapping.')
-        logging.info('Collect chimera from mates-seperate mapping.')
-        fixedInput = fixall(options.Input,options.mate1,options.mate2)
-                           
-        for indx, files in enumerate(fixedInput):
+        if options.pairedendindependent:
+            print '===== Please make sure that you mapped both the paired mates togethor and seperately!!! ====='
+            logging.info("===== Please make sure that you mapped both the paired mates togethor and seperately!!! =====")
+  
+            # Fix2chimera problem by STAR
+            print ('Collect chimera from mates-seperate mapping.')
+            logging.info('Collect chimera from mates-seperate mapping.')
+            Input = fixall(options.Input,options.mate1,options.mate2)
+        else:
+            Input = options.Input
+
+        for indx, files in enumerate(Input):
             
             if same:
                 circfilename = getfilename(files)+str(indx)+'.circRNA'
@@ -186,7 +187,7 @@ def main():
                 logging.info( 'nonstrand' )
                 print 'nonstrand'
        	        
-                if options.pairedend:
+                if options.pairedendindependent:
                     wrapfindcirc(files,circfilename,strand=False,pairdendindependent=True)
                 else:
                     wrapfindcirc(files,circfilename,strand=False,pairdendindependent=False)
@@ -228,10 +229,6 @@ def main():
                 circAnn.annotateregions('CircCoordinates',options.annotate)
             else:
                 os.rename('tmp_coordinates','CircCoordinates')
-
-        if not options.debug:
-            deleted=cm.deletfile(os.getcwd(),circfiles+[files+'mapped' for files in circfiles])
-            logdeleted(deleted)
         
     ### Filtering        
     if options.filter:
@@ -291,7 +288,8 @@ def main():
                 filt.sortOutput('tmp_unsortedNoChrM','CircRNACount',samplelist,'CircCoordinates',split=True)
         
         # Add annotation of regions
-        circAnn.annotateregions('CircCoordinates',options.annotate)
+        if options.annotate:
+            circAnn.annotateregions('CircCoordinates',options.annotate)
         
         logging.info('Filtering finished')
                       
@@ -352,11 +350,22 @@ def main():
             if not options.debug:
                 deleted=cm.deletfile(os.getcwd(),linearfiles)
                 logdeleted(deleted)
-
+    
+    # CircSkip junction
+    if options.annotate:
+        logging.info('Count CircSkip junctions.')
+        print('Count CircSkip junctions.')
+        SJ_out_tab = getSJ_out_tab(options.Input)
+        findCircSkipJunction('CircCoordinates',options.annotate,circfiles,SJ_out_tab,strand=options.strand)
+    else:
+        logging.info('CircSkip junctions cannot be count.')
+        
     # Delte temp files
     if not options.debug:
         p3 = r'^tmp_\.*'
         deleted = cm.deletfile(os.getcwd(),p3)
+        logdeleted(deleted)
+        deleted=cm.deletfile(os.getcwd(),circfiles+[files+'mapped' for files in circfiles])
         logdeleted(deleted)
 
 def fixall(joinedfnames,mate1filenames,mate2filenames):
@@ -410,6 +419,43 @@ def convertjunctionfile2bamfile(junctionfilelist):
         bamfnames.append(getbamfname(fname))
     return bamfnames 
 
-              
+# CircSkip junctions
+def findCircSkipJunction(CircCoordinates,gtffile,circfiles,SJ_out_tab,strand=True):
+    from Circ_nonCirc_Exon_Match import CircNonCircExon
+    CCEM=CircNonCircExon()
+    # Modify gtf file
+    CCEM.select_exon(gtffile)
+    if CCEM.modifyExon_id('tmp_'+getfilename(gtffile)+'.exon.sorted'):
+        # Start and end coordinates
+        start2end=CCEM.print_start_end_file(CircCoordinates)
+        Iv2Custom_exon_id, Custom_exon_id2Iv, Custom_exon_id2Length = CCEM.readNonUniqgtf('tmp_'+getfilename(gtffile)+'.exon.sorted.modified')
+        if strand:
+            circStartExons = CCEM.intersectcirc('start.bed','tmp_'+getfilename(gtffile)+'.exon.sorted.modified') #Circle start or end to corresponding exons
+        else:
+            circStartExons = CCEM.intersectcirc('start.bed','tmp_'+getfilename(gtffile)+'.exon.sorted.modified',strand=False)
+        circStartAdjacentExons, circStartAdjacentExonsIv = CCEM.findcircAdjacent(circStartExons,Custom_exon_id2Iv,Iv2Custom_exon_id,start=True)
+        circEndExons = CCEM.intersectcirc('end.bed','tmp_'+getfilename(gtffile)+'.exon.sorted.modified') #Circle start or end to corresponding exons
+        circEndAdjacentExons, circEndAdjacentExonsIv = CCEM.findcircAdjacent(circEndExons,Custom_exon_id2Iv,Iv2Custom_exon_id,start=False)
+        exonskipjunctions = CCEM.exonskipjunction(circStartAdjacentExonsIv,circEndAdjacentExonsIv,start2end)
+        for indx, fname in enumerate(SJ_out_tab):
+            path = fname.replace('SJ.out.tab','')
+            junctionReadCount = CCEM.readSJ_out_tab(fname)
+            if len(junctionReadCount) == 0:
+                logging.error('Do you have SJ.out.tab files in your sample folder? DCC cannot find it.')
+                logging.info('Cannot fine SJ.out.tab files, please check the path. circSkip will not be output.')
+                break
+            else:
+                skipJctCount = CCEM.getskipjunctionCount(exonskipjunctions,junctionReadCount)
+                circCount=CCEM.readcircCount(circfiles[indx])
+                CCEM.printCirc_Skip_Count(circCount,skipJctCount,path)
+    
+
+def getSJ_out_tab(chimeralist):
+    SJ_out_tab = []
+    for fname in chimeralist:
+        SJ_out_tab.append(fname.replace('Chimeric.out.junction','SJ.out.tab'))
+    return SJ_out_tab
+    
+    
 if __name__ == "__main__":
     main()

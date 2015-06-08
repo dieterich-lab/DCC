@@ -68,7 +68,7 @@ class Genecount(object):
         """
         
         # process the circ_coordinates to left circ position and right circ position
-        coor = open(circ_coor,'r').readlines()
+        coor = open(circ_coor,'r').readlines()[1:]
         start_coor = open('start_coor','w')
         end_coor = open('end_coor','w')
         
