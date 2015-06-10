@@ -14,8 +14,8 @@ class CircNonCircExon(object):
 		# Get start and end corresponding relationship
 		start2end = {}
 		circ = open(circcoordinates,'r')
-		start_bed = open('start.bed','w')
-		end_bed = open('end.bed','w')
+		start_bed = open('tmp_start.bed','w')
+		end_bed = open('tmp_end.bed','w')
 		header = True
 		for lin in circ:
 			if header:
@@ -66,9 +66,15 @@ class CircNonCircExon(object):
 			# First look for transcript_id
 			try:
 				if feature.attr['transcript_id'] in exon_number:
+					#if feature.iv.strand == '+':
 					exon_number[feature.attr['transcript_id']] = exon_number[feature.attr['transcript_id']] + 1
+					#else:
+					#exon_number[feature.attr['transcript_id']] = exon_number[feature.attr['transcript_id']] - 1
 				else:
-					exon_number[feature.attr['transcript_id']] = 0
+					#if feature.iv.strand == '+':
+					exon_number[feature.attr['transcript_id']] = 1
+					#else:
+					#exon_number[feature.attr['transcript_id']] = -1
 				# if gff:
 				# 	custom_exon_id = ';custom_exon_id'+'='+feature.attr['transcript_id']+':'+str(exon_number[feature.attr['transcript_id']])
 				# else:
@@ -77,9 +83,15 @@ class CircNonCircExon(object):
 				# Try assume gff format
 				try:
 					if feature.attr['Parent'] in exon_number:
+						#if feature.iv.strand == '+':
 						exon_number[feature.attr['Parent']] = exon_number[feature.attr['Parent']] + 1
+						#else:
+						#	exon_number[feature.attr['Parent']] = exon_number[feature.attr['Parent']] - 1
 					else:
-						exon_number[feature.attr['Parent']] = 0
+						#if feature.iv.strand == '+':
+						exon_number[feature.attr['Parent']] = 1
+						#else:
+						#	exon_number[feature.attr['Parent']] = -1
 					custom_exon_id = ';custom_exon_id'+'='+feature.attr['Parent']+':'+str(exon_number[feature.attr['Parent']])
 				except (KeyError,TypeError):
 					print ('DCC confused with the annotation, cannot determine CircSkip junctions. If gtf file provided, one or two of the features cannot find: transcript_id. If gff file provided, cannot determine Parent feature.')
@@ -150,7 +162,7 @@ class CircNonCircExon(object):
 			nonCircExons.setdefault(feature.iv,[]).append(feature.attr)
 		return nonCircExons
 
-	def getAdjacent(self, custom_exon_id, start=True, reverse=True, strand='-'):
+	def getAdjacent(self, custom_exon_id, start=True, reverse=False):
 		# Need to determine the oder. (Some exon ids increasing from first exon to last of the transcript, irrelevant to strand. But some id
 		# increase with coordinates, in this case, for - strand, exon id will ACTUALLY decrease from 5' to 3'.
 		# First determine whether exon id is reverse oder for - strand. 
@@ -158,16 +170,10 @@ class CircNonCircExon(object):
 		# Need a function to determine order. !!! Solved by sort gtf and assign id to exon based on occuring order. Thus for - strand, order reverse.
 		#
 		if reverse:
-			if strand == '-':
-				if start:
-					exon_number = int(custom_exon_id.split(':')[1])+1 
-				else:
-					exon_number = int(custom_exon_id.split(':')[1])-1
+			if start:
+				exon_number = int(custom_exon_id.split(':')[1])-1
 			else:
-				if start:
-					exon_number = int(custom_exon_id.split(':')[1])-1
-				else:
-					exon_number = int(custom_exon_id.split(':')[1])+1
+				exon_number = int(custom_exon_id.split(':')[1])+1
 		else:
 			if start:
 				exon_number = int(custom_exon_id.split(':')[1])-1

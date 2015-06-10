@@ -16,54 +16,54 @@ from fix2chimera import Fix2Chimera
 
 def main():
     
-    parser = argparse.ArgumentParser(prog='main',formatter_class=argparse.ArgumentDefaultsHelpFormatter, fromfile_prefix_chars='@', description='Contact jun.cheng@age.mpg.de')
+    parser = argparse.ArgumentParser(prog='DCC',formatter_class=argparse.ArgumentDefaultsHelpFormatter, fromfile_prefix_chars='@', description='Contact jun.cheng@age.mpg.de')
     
     
-    parser.add_argument('--version', action='version', version='%(prog)s 2.0')
+    parser.add_argument('--version', action='version', version='%(prog)s 0.3.1b')
     parser.add_argument("Input", metavar='Input', nargs="+",
                     help="Input of the chimeric.out.junction file from STAR. Alternatively a file with each sample name with path per line.")
     #parser.add_argument("-O", "--output", dest="output", 
     #                  help="Tab delimited outputfile, order the same with input: \
     #                  chr\tstart\tend\tstand\tcount\tjunctiontype")
-    parser.add_argument("-deb", "--debug", dest="debug", action='store_true', default=False,
+    parser.add_argument("-temp", "--temp", dest="temp", action='store_true', default=False,
                     help="Once specified, temp files will not be deleted.")
     
                                                                                                         
     group = parser.add_argument_group("Find circRNA Options","Options to find circRNAs from STAR output.")
     group.add_argument("-D", "--detect", action='store_true', dest="detect", default=False,
                     help="If specified, the program will start detecting circRNAs from chimeric junction.")                    
-    group.add_argument("-S", action='store_true', dest="strand", default=True,
-                    help="Specify when the library is stranded [Default].")
-    group.add_argument("-N", action='store_false', dest="strand",
-                    help="Specify when the library is non-stranded")
+    #group.add_argument("-S", action='store_true', dest="strand", default=True,
+    #                help="Specify when the library is stranded [Default].")
+    group.add_argument("-N", action='store_false', dest="strand", default=True,
+                    help="Specify when the library is non-stranded [default stranded].")
     group.add_argument("-E", "--endTol", dest="endTol", type=int, default= 5, choices=range(0,10),
-                    help="Maximum tolerance of reads extrend over junction sites: Interger")
+                    help="Maximum base pair tolerance of reads extending over junction sites: Interger")
     group.add_argument("-m", "--maximum", dest="max", type=int, default = 1000000,
-                    help="The maximum range length of candidate circRNA allowed.")   
+                    help="The maximum range of candidate circRNA allowed (including introns).")   
     group.add_argument("-n", "--minimum", dest="min", type=int, default = 30,
-                    help="The minimum range length of candidate circRNA allowed.")
+                    help="The minimum range of candidate circRNA allowed (including introns).")
     group.add_argument("-an", "--annotate",dest="annotate",
-                    help="Gene annotation file in gtf format, to annotate circRNAs，if provided, the circRNA intervals will be annotated (default with gene_id).")
+                    help="Gene annotation file in GTF/GFF3 format, to annotate circRNAs (default with gene_id).")
     #group.add_argument("-gf", "--getfasta", dest="getfasta",
     #                  help="Get fasta file of circular RNAs. If a exon annotation file is provided, the circular RNA sequence will only contain annotated exons, otherwise whole sequence.")
-    group.add_argument("-Pi", "--pi", action='store_true', dest="pairedendindependent", default=False,
-                    help="Whether or not you have maped the PE data mates seperately. Boolean")
+    group.add_argument("-Pi", "--PE-independent", action='store_true', dest="pairedendindependent", default=False,
+                    help="Specify when you have maped the PE data mates seperately. If specified, -mt1 and -mt2 should also be provied.")
     group.add_argument("-mt1", "--mate1", dest="mate1", nargs = '+',
-                    help="For paired end date, Chimeric.out.juntion file from mate1 independent mapping result.")  
+                    help="For paired end data, Chimeric.out.juntion file from mate1 independent mapping result.")  
     group.add_argument("-mt2", "--mate2", dest="mate2", nargs = '+',
-                    help="For paired end date, Chimeric.out.juntion file from mate2 independent mapping result.")
+                    help="For paired end data, Chimeric.out.juntion file from mate2 independent mapping result.")
     parser.add_argument_group(group)
     
         
     group = parser.add_argument_group("Filtering Options", "Options to filter the circRNA candidates.")                              
     group.add_argument("-F", "--filter", action='store_true', dest="filter", default=False,
-                    help="If specified, the program will start filtering model.")
+                    help="If specified, the program will start filtering.")
     group.add_argument("-M", "--chrM", action='store_true', dest="chrM",default=False,
                     help="If specified, candidates from mitochondria chromosome will be removed.")
     #group.add_argument("-J", "--junction", dest="junction",
     #                  help="Provide a coustom junction file in gtf format, if only specify as True, only GT/AG or CT/AC junction will be considered.")
     group.add_argument("-R", "--rep_file", dest="rep_file",
-                    help="Coustom repetitive region file in gtf format.") 
+                    help="Coustom repetitive region file in GTF format, to filter out circRNAs candidates in repetitive regions.") 
     group.add_argument("-L", "--Ln", dest="length", type=int, default=50,
                     help="Minimum length to check for repetitive regions, default 50.")                                                      
     group.add_argument('-Nr', nargs=4, type=int, metavar=('level0', 'level1','threshold0','threshold1'), default=[4,2,5,5], help='Minimum read counts required for circRNAs with junction type 0 and junction type 1, \
@@ -77,11 +77,11 @@ def main():
     group.add_argument("-G", "--gene", action='store_true', dest="gene", default=False,
                     help="If specified, the program will count host gene expression given circRNA coordinates.")
     group.add_argument("-C", "--circ", dest="circ",
-                    help="circRNA coordinates, or any tab delimited file with first three columns circRNA coordinates: chr\tstart\tend. If not specified, program take output of previous detection.")                  
+                    help="User specified circRNA coordinates, any tab delimited file with first three columns as circRNA coordinates: chr\tstart\tend, which DCC will use to count host gene expression.")                  
     group.add_argument("-B", "--bam", dest="bam", nargs = '+',
-                    help="The mapped bam file where host gene count counted from, the same oder with the input file.")
-    group.add_argument("-A", "--refseq", dest="refseq",         
-                    help="Reference sequnce fasta file.") 
+                    help="The mapped bam file where host gene count counted from, the same oder with the input files.")
+    group.add_argument("-A", "--refseq", dest="refseq",
+                    help="Reference sequnce fasta file.")
     #group.add_argument("-seq", "--seq", dest="seq",         
     #                  help="Get circRNA sequence as fasta file.")
     parser.add_argument_group(group)
@@ -89,7 +89,7 @@ def main():
     options= parser.parse_args()
     
     timestr = time.strftime("%Y%m%d-%H%M%S")
-    logging.basicConfig(filename='main.log'+timestr, filemode='w',level=logging.DEBUG,format='%(asctime)s %(message)s')
+    logging.basicConfig(filename='DCC.log'+timestr, filemode='w',level=logging.DEBUG,format='%(asctime)s %(message)s')
     
     #root = logging.getLogger()
     #root.setLevel(logging.DEBUG)
@@ -204,7 +204,8 @@ def main():
             
         ### Combine the individual count files
         # Create a list of '.circRNA' file names
-        logging.info('Start to combine individual circRNA read counts')
+        print('Start to combine individual circRNA read counts.')
+        logging.info('Start to combine individual circRNA read counts.')
 
         if options.strand:
             cm.comb_coor(circfiles,strand=True)
@@ -284,7 +285,7 @@ def main():
                 circAnn.filtbygene('tmp_unsortedNoChrM','tmp_unsortedfilterbygene')
                 filt.sortOutput('tmp_unsortedfilterbygene','CircRNACount',samplelist,'CircCoordinates',split=True)
             else:
-                logging.warning('To filter by gene annotation, a annotation file in bed 4 format needed, skiped filter by gene annotation.')
+                logging.warning('To filter by gene annotation, a annotation file in GTF/GFF format needed, skiped filter by gene annotation.')
                 filt.sortOutput('tmp_unsortedNoChrM','CircRNACount',samplelist,'CircCoordinates',split=True)
         
         # Add annotation of regions
@@ -347,7 +348,7 @@ def main():
             cm.writeouput('LinearCount', res, samplelist, header=True)
             logging.info('Finished combine individual linear gene expression counts')
                 
-            if not options.debug:
+            if not options.temp:
                 deleted=cm.deletfile(os.getcwd(),linearfiles)
                 logdeleted(deleted)
     
@@ -361,12 +362,15 @@ def main():
         logging.info('CircSkip junctions cannot be count.')
         
     # Delte temp files
-    if not options.debug:
+    if not options.temp:
         p3 = r'^tmp_\.*'
         deleted = cm.deletfile(os.getcwd(),p3)
         logdeleted(deleted)
         deleted=cm.deletfile(os.getcwd(),circfiles+[files+'mapped' for files in circfiles])
         logdeleted(deleted)
+    
+    logging.info('Finished!')
+        
 
 def fixall(joinedfnames,mate1filenames,mate2filenames):
     # Fix all 2chimera in one read/read paire for all inputs
@@ -430,11 +434,14 @@ def findCircSkipJunction(CircCoordinates,gtffile,circfiles,SJ_out_tab,strand=Tru
         start2end=CCEM.print_start_end_file(CircCoordinates)
         Iv2Custom_exon_id, Custom_exon_id2Iv, Custom_exon_id2Length = CCEM.readNonUniqgtf('tmp_'+getfilename(gtffile)+'.exon.sorted.modified')
         if strand:
-            circStartExons = CCEM.intersectcirc('start.bed','tmp_'+getfilename(gtffile)+'.exon.sorted.modified') #Circle start or end to corresponding exons
+            circStartExons = CCEM.intersectcirc('tmp_start.bed','tmp_'+getfilename(gtffile)+'.exon.sorted.modified') #Circle start or end to corresponding exons
         else:
-            circStartExons = CCEM.intersectcirc('start.bed','tmp_'+getfilename(gtffile)+'.exon.sorted.modified',strand=False)
+            circStartExons = CCEM.intersectcirc('tmp_start.bed','tmp_'+getfilename(gtffile)+'.exon.sorted.modified',strand=False)
         circStartAdjacentExons, circStartAdjacentExonsIv = CCEM.findcircAdjacent(circStartExons,Custom_exon_id2Iv,Iv2Custom_exon_id,start=True)
-        circEndExons = CCEM.intersectcirc('end.bed','tmp_'+getfilename(gtffile)+'.exon.sorted.modified') #Circle start or end to corresponding exons
+        if strand:
+            circEndExons = CCEM.intersectcirc('tmp_end.bed','tmp_'+getfilename(gtffile)+'.exon.sorted.modified') #Circle start or end to corresponding exons
+        else:
+            circEndExons = CCEM.intersectcirc('tmp_end.bed','tmp_'+getfilename(gtffile)+'.exon.sorted.modified',strand=False)
         circEndAdjacentExons, circEndAdjacentExonsIv = CCEM.findcircAdjacent(circEndExons,Custom_exon_id2Iv,Iv2Custom_exon_id,start=False)
         exonskipjunctions = CCEM.exonskipjunction(circStartAdjacentExonsIv,circEndAdjacentExonsIv,start2end)
         for indx, fname in enumerate(SJ_out_tab):
