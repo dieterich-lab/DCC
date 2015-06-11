@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#! /usr/bin/env python
 
 # given circRNA coordinates file and exon annotation gtf file, print out the adjacent exon coordinates and exon_id
 

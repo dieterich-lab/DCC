@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#! /usr/bin/env python
 # This script is aimed to get circRNA exon sequences
 #### Iput:
 #--- circRNA coordinates
