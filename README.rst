@@ -32,8 +32,15 @@ On the right site of https://github.com/dieterich-lab/DCC, click 'Download Zip'.
   
   # Get help
   $ DCC -h
-  # If somehow DCC is not included in your path, you also call DCC by:
+
+4) If somehow DCC is not included in your path, you also call DCC by:
+
+.. code-block:: bash
+ 
   $ python <DCC directory>/scripts/DCC <Options>
+  # Or if this gives error, you can always run DCC as a script by:
+  $python <DCC directory>/DCC/main.py <Options>
+  
 
 ========
 Usage
