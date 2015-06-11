@@ -137,7 +137,7 @@ Test for host-independently regulated circRNAs with CircTest package
 
 .. code-block:: R
 
-  CircRNACount <- read.deim('CircRNACount',header=T)
+  CircRNACount <- read.delim('CircRNACount',header=T)
   LinearCount <- read.delim('LinearCount',header=T)
   CircCoordinates <- read.delim('CircCoordinates',header=T)
 
