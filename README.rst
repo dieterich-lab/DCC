@@ -49,7 +49,7 @@ The detection of circRNAs from RNAseq data through DCC can be summarised by thre
 ========================
 Step by step tutorial
 ========================
-In this tutorial, we use Westholm et al. data as an example. The data are paired end, stranded RiboMinus RNAseq data from Drosophila.melanogastor. You can download the data with accession number:
+In this tutorial, we use Westholm et al. data as an example. The data are paired end, stranded RiboMinus RNAseq data from Drosophila.melanogaster, consisting of samples 3 developmental stages (1days, 4days and 20days) from heads. You can download the data as fastq files with NCBI SRA accession number: SRP001696. 
 
 1. Map RNA-seq data with STAR (Dobin et al., 2013). Note that --alignSJoverhangMin and --chimJunctionOverhangMin should use the same value, to make the circRNA expression and linear gene expression level comparable. 
 
