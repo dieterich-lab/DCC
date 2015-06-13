@@ -107,12 +107,12 @@ In this tutorial, we use Westholm et al. data as an example. The data are paired
 .. code-block:: bash
 
   # Call DCC to detect circRNAs, using Westholm data as example.
-  $ DCC @samplesheet -mt1 @mate1 -mt2 @mate2 -D -R [Repeats].gtf -an [Annotation].gtf -Pi -F -M -Nr 10 5 20 6 -fg -G -A [Reference].fa
+  $ DCC @samplesheet -mt1 @mate1 -mt2 @mate2 -D -R [Repeats].gtf -an [Annotation].gtf -Pi -F -M -Nr 5 6 -fg -G -A [Reference].fa
 
   # For single end, non-strand data:
-  $ DCC @samplesheet -D -R [Repeats].gtf -an [Annotation].gtf -F -M -Nr 10 5 20 6 -fg -G -A [Reference].fa
+  $ DCC @samplesheet -D -R [Repeats].gtf -an [Annotation].gtf -F -M -Nr 5 6 -fg -G -A [Reference].fa
 
-  $ DCC @samplesheet -mt1 @mate1 -mt2 @mate2 -D -S -R [Repeats].gtf -an [Annotation].gtf -Pi -F -M -Nr 10 5 20 6 -fg
+  $ DCC @samplesheet -mt1 @mate1 -mt2 @mate2 -D -S -R [Repeats].gtf -an [Annotation].gtf -Pi -F -M -Nr 5 6 -fg
 
   # Details of parameters please refer to the help page of DCC:
   $ DCC -h
