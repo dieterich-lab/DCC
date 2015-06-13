@@ -127,6 +127,7 @@ NOTE: -F flag is mandatory, if you want to filter on the results. All filtering 
 The output of DCC include: CircRNACount, CircCoordinates, LinearCount and CircSkipJunctions.
 
 **CircRNACount:** a table containing read counts for circRNAs detected. First thre columns are chr, circRNA start, circRNA end. From fourth column one are the circRNA read counts, one sample per column, shown in the order given in your samplesheet.
+
 **CircCoordinates:** CircRNA annotation in BED format. The columns are chr, start, end, genename, junctiontype (come from STAR, 1 for AG/GT, 2 for TC/CA, 0 for non-canonical junction), strand, circRNA region (startregion-endregion), overall regions (the genomic features circRNA coordinates interval covers).
 
 **LinearCount:** host gene expression count table, same setup with CircRNACount file.
