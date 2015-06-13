@@ -6,7 +6,7 @@ class Fix2Chimera(object):
 
 	def fixreadname(self,chimeric_junction_file,output_file):
 		# Because sometimes, for example -I flag of fastq-dump will add ".1" and ".2" read suffices.
-		# "======== NOTE! ======= The default flag for matched pairedend reads is suffice '.1' and '.2'. If not, please change the code!!! "
+		# "======== NOTE! ======= The default flag for matched pairedend reads is suffice '.1' and '.2'. "
 		chimeric_junction = open(chimeric_junction_file,'r')
 		output = open(output_file,'w')
 		for line in chimeric_junction:
@@ -69,9 +69,9 @@ class Fix2Chimera(object):
 		self.fixmate2(mate2,mate2+'.fixed')
 
 		# Second, merge two mate files, select duplicates
-		self.concatenatefiles('tmp_merged',mate1,mate2+'.fixed')
-		self.printduplicates('tmp_merged','tmp_twochimera',field=10)
-		self.concatenatefiles(output_file,'tmp_twochimera',joined)
+		self.concatenatefiles('_tmp_DCC/tmp_merged',mate1,mate2+'.fixed')
+		self.printduplicates('_tmp_DCC/tmp_merged','_tmp_DCC/tmp_twochimera',field=10)
+		self.concatenatefiles(output_file,'_tmp_DCC/tmp_twochimera',joined)
 
 	def printduplicates(self,infile,dupfile,field=10):
 		inputfile=open(infile,'r')

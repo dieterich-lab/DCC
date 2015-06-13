@@ -4,10 +4,23 @@ import warnings
 import logging
 import os
 import re
+import HTSeq
 
 class CircAnnotate(object):
     def __init__(self,strand=True):
         self.strand = strand
+        
+    def selectGeneGtf(self,gtf_file):
+        # select gene features for gtf or gff annotation file
+	gtf = HTSeq.GFF_Reader(gtf_file, end_included=True)
+	new_gtf = open('_tmp_DCC/tmp_'+os.path.basename(gtf_file)+'.gene','w')
+	for feature in gtf:
+		# Select only exon line
+		if feature.type == 'gene':
+			new_gtf.write(feature.get_gff_line())
+		else:
+			pass
+	new_gtf.close()      
     
     def annotate(self,circfile,annotationfile,output):
         # the circRNA file should be in a bed format, have chr\tstart\tend\t'.'\tjunctiontype\tstrand
@@ -33,18 +46,24 @@ class CircAnnotate(object):
         ann = pybedtools.BedTool(annotationfile)
         if self.strand:
             tmpintersect = circ.intersect(ann,wa=True,wb=True,loj=True,s=True)
+            #print 'Intersect with nonstrand'
         else:
             tmpintersect = circ.intersect(ann,wa=True,wb=True,loj=True,s=False)
-        tmpresult = tmpintersect.groupby(g=(1,2,3,5,6),c=ncol+9,o='distinct')
-        tmpresult.moveto('tmpAnnotatedUnsorted')
-        self.printbycolumns('tmpAnnotatedUnsorted',output,order=[1,2,3,6,4,5])
-        os.remove('tmpAnnotatedUnsorted')
+            #print 'Intersect with nonstrand'
+        if self.strand:
+            tmpresult = tmpintersect.groupby(g=(1,2,3,5,6),c=ncol+9,o='distinct')
+        else:
+            tmpresult = tmpintersect.groupby(g=(1,2,3,5,13),c=ncol+9,o='distinct')
+        tmpintersect.moveto('_tmp_DCC/tmp_intersect')
+        tmpresult.moveto('_tmp_DCC/tmp_AnnotatedUnsorted')
+        self.printbycolumns('_tmp_DCC/tmp_AnnotatedUnsorted',output,order=[1,2,3,6,4,5])
+        #os.remove('_tmp_DCC/tmp_AnnotatedUnsorted')
           
     def annotateregions(self,circfile, annotationfile):
         # Annotate with regions (Exon, intron, intergenic)
         # create left and right circle bundary bedfiles: chr\tstart\tstart  chr\tend\tend
-        tmp_left = open('tmp_left','w')
-        tmp_right = open('tmp_right','w')
+        tmp_left = open('_tmp_DCC/tmp_left','w')
+        tmp_right = open('_tmp_DCC/tmp_right','w')
         circ = open(circfile,'r').readlines()
         for line in circ:
             line_split = line.split('\t')
@@ -55,8 +74,8 @@ class CircAnnotate(object):
         
         # Bedtools annotate
         overall = pybedtools.BedTool(circfile)
-        left = pybedtools.BedTool('tmp_left')
-        right = pybedtools.BedTool('tmp_right')
+        left = pybedtools.BedTool('_tmp_DCC/tmp_left')
+        right = pybedtools.BedTool('_tmp_DCC/tmp_right')
         ann = pybedtools.BedTool(annotationfile)
         overallintersect = overall.intersect(ann,wa=True,wb=True,loj=True,s=False)
         leftintersect = left.intersect(ann,wa=True,wb=True,loj=True,s=False)
@@ -125,13 +144,13 @@ class CircAnnotate(object):
         tmpOut.close()
         
         
-    def searchGeneName(self,annotationstring):
+    def searchGeneName1(self,annotationstring):
         # Search for gene_name in gtf annotation, if gene_name cannot be found, look for gene_id
         # input example: gene_id "ENSG00000187634"; gene_name "SAMD11"; gene_source "ensembl_havana"; gene_biotype "lincRNA";
         ann = ','.join(list(set(re.findall(r'gene_name\=?\s?"([^;]*)"\;',annotationstring))))
         if len(ann)==0:
             # Look for "gene=", which is used in gff3 format
-            ann = ','.join(list(set(re.findall(r'gene\=([^;,]*)\;?\,?',annotationstring))))
+            ann = ','.join(list(set(re.findall(r'gene\=?\s?"([^;]*)"\;',annotationstring))))
             if len(ann)==0:
                 # Look for gene_id
                 ann = ','.join(list(set(re.findall(r'gene_id\=?\s?"([^;]*)"\;',annotationstring))))
@@ -141,5 +160,33 @@ class CircAnnotate(object):
         if len(ann)==0:
             ann = 'N/A'
         return ann
+        
+    def searchGeneName(self,annotationstring):
+        if annotationstring == '.':
+            gene = 'N/A'
+        else:
+            try:
+                attr = HTSeq.parse_GFF_attribute_string(annotationstring)
+                # Search for gene_name which is used by ensembl gtf annotation
+                try:
+                    gene = attr['gene_name']
+                except KeyError:
+                    # Search for gene, which might used in GFF annotation
+                    try:
+                        gene = attr['gene']
+                    except KeyError:
+                        # Search for gene_id
+                        try:
+                            gene = attr['gene_id']
+                        except KeyError:
+                            try:
+                                gene = attr['transcript_id']
+                            except KeyError:
+                                gene = 'N/A'
+            except ValueError:
+                gene = self.searchGeneName1(annotationstring)
+            
+        return gene
+        
         
         

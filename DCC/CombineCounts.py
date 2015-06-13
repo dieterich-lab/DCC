@@ -34,7 +34,7 @@ class Combine(object):
 #
 #        if self.genetype == 'circ':
 #            self.comb_coor(self.Alist)
-#            self.map('tmp_coordinates', self.Alist)
+#            self.map('_tmp_DCC/tmp_coordinates', self.Alist)
 #            res = self.combine(self.Alist, col=8, circ=True)
 #        elif self.genetype == 'host':
 #            res = self.combine(self.Alist, col=6, circ=False)
@@ -57,7 +57,7 @@ class Combine(object):
         '''
         Combine coordinates of all samples to one.
         '''
-        coordinates = open('tmp_coordinates','w')
+        coordinates = open('_tmp_DCC/tmp_coordinates','w')
         coors = set()
         coorsDict = {} # Use all except the strand and junction type information as key, to uniq the list.
         for files in circfiles:
@@ -78,7 +78,7 @@ class Combine(object):
         for itm in coorsSorted:
             coordinates.write('\t'.join(itm))
     
-    def map(self, coordinates, Alist, strand=True):
+    def map(self, coordinates, Alist, strand=True, col=5,o='distinct'):
         '''
         Take the combined coordinates and list of circRNA files.
         '''
@@ -86,9 +86,9 @@ class Combine(object):
         for files in Alist:
             bed2 = pybedtools.BedTool(files)
             if strand:
-                mapped = bed1.map(bed2,s=True, f=1,r=True)
+                mapped = bed1.map(bed2,s=True, f=1,r=True,c=col,o=o)
             else:
-                mapped = bed1.map(bed2,s=False, f=1,r=True)
+                mapped = bed1.map(bed2,s=False, f=1,r=True,c=col,o=o)
             mapped.moveto(files+'mapped')
 
     def deletfile(self, dirt, pattern):

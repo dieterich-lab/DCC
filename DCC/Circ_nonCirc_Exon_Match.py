@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/python
 
 # given circRNA coordinates file and exon annotation gtf file, print out the adjacent exon coordinates and exon_id
 
@@ -14,8 +14,8 @@ class CircNonCircExon(object):
 		# Get start and end corresponding relationship
 		start2end = {}
 		circ = open(circcoordinates,'r')
-		start_bed = open('tmp_start.bed','w')
-		end_bed = open('tmp_end.bed','w')
+		start_bed = open('_tmp_DCC/tmp_start.bed','w')
+		end_bed = open('_tmp_DCC/tmp_end.bed','w')
 		header = True
 		for lin in circ:
 			if header:
@@ -34,7 +34,7 @@ class CircNonCircExon(object):
 
 	def select_exon(self,gtf_file):
 		gtf = HTSeq.GFF_Reader(gtf_file, end_included=True)
-		new_gtf = open('tmp_'+os.path.basename(gtf_file)+'.exon','w')
+		new_gtf = open('_tmp_DCC/tmp_'+os.path.basename(gtf_file)+'.exon','w')
 		for feature in gtf:
 			# Select only exon line
 			if feature.type == 'exon':
@@ -43,17 +43,17 @@ class CircNonCircExon(object):
 				pass
 		new_gtf.close()
 		# Sort
-		a = pybedtools.BedTool('tmp_'+os.path.basename(gtf_file)+'.exon')
+		a = pybedtools.BedTool('_tmp_DCC/tmp_'+os.path.basename(gtf_file)+'.exon')
 		sortedgtf = a.sort()
-		sortedgtf.moveto('tmp_'+os.path.basename(gtf_file)+'.exon.sorted')
-		os.remove('tmp_'+os.path.basename(gtf_file)+'.exon')
+		sortedgtf.moveto('_tmp_DCC/tmp_'+os.path.basename(gtf_file)+'.exon.sorted')
+		os.remove('_tmp_DCC/tmp_'+os.path.basename(gtf_file)+'.exon')
 
 	def modifyExon_id(self, exon_gtf_file):
 		rtrn = True
 		# write custom_exon_id as transcript_id:exon_number
 		gtf = HTSeq.GFF_Reader(exon_gtf_file, end_included=True)
 		# gff = True
-		new_gtf = open(os.path.basename(exon_gtf_file)+'.modified','w')
+		new_gtf = open('_tmp_DCC/'+os.path.basename(exon_gtf_file)+'.modified','w')
 		exon_number = {}
 		for feature in gtf:
 			# if gff:
@@ -374,76 +374,21 @@ class CircNonCircExon(object):
 		return circCount
 
 	def printCirc_Skip_Count(self,circCount,skipJctCount,prefix):
-		Circ_Skip_Count = open(prefix+'Circ_Skip_Count','w')
-		Circ_Skip_Count.write('chr'+'\t'+'circ_start'+'\t'+'circ_end'+'\t'+'strand'+'\t'+'skipJct:Count'+'\t'+'circCount'+'\n')
-		for key in skipJctCount:
-			try:
-				count = skipJctCount[key] + '\t' + circCount[key]
-				Circ_Skip_Count.write(key.chrom + '\t' + str(key.start) + '\t' + str(key.end) + '\t' + key.strand + '\t' + count+'\n')
-			except KeyError:
-				pass
+		Circ_Skip_Count = open(prefix+'CircSkipJunction','w')
+		if len(skipJctCount) == 0:
+			Circ_Skip_Count.write('chrNone'+'\t'+'1'+'\t'+'2'+'\t'+'.'+'\t'+'.'+'\t'+'.'+'\n')
+		else:
+			for key in skipJctCount:
+				try:
+					# count = skipJctCount[key] + '\t' + circCount[key]
+					count = skipJctCount[key]
+					Circ_Skip_Count.write(key.chrom + '\t' + str(key.start) + '\t' + str(key.end) + '\t' + count + '\t' + circCount[key] + '\t' + key.strand+'\n')
+				except KeyError:
+					pass
 		Circ_Skip_Count.close()
-			
-
-
-
-
-"""
-
-# Compare circ exon expression with non-circ exon expression
-grep exon_id Drosophila_melanogaster.75.gtf > Drosophila_melanogaster.BDGP5.75.exon_id.gtf
-awk '!x[$1$4$5$7]++' Drosophila_melanogaster.BDGP5.75.exon_id.gtf > Drosophila_melanogaster.BDGP5.75.exon_id.dedup.gtf
-
-%run ~/tools/Circ_nonCirc_Exon_Match.py
-CCEM=CircNonCircExon()
-
-# Get start and end file
-start2end=CCEM.print_start_end_file('CircCoordinates')
-
-# This time use not uniq gtf, find out all the corresponding relationship
-Iv2Custom_exon_id, Custom_exon_id2Iv, Custom_exon_id2Length = CCEM.readNonUniqgtf('Drosophila_melanogaster.BDGP5.75.exon_id.modified.gtf')
-
-# 
-circStartExons = CCEM.intersectcirc('start.bed','Drosophila_melanogaster.BDGP5.75.exon_id.dedup.modified.gtf') #Circle start or end to corresponding exons
-circStartAdjacentExons, circStartAdjacentExonsIv = CCEM.findcircAdjacent(circStartExons,Custom_exon_id2Iv,Iv2Custom_exon_id,start=True)
-
-circEndExons = CCEM.intersectcirc('end.bed','Drosophila_melanogaster.BDGP5.75.exon_id.dedup.modified.gtf') #Circle start or end to corresponding exons
-circEndAdjacentExons, circEndAdjacentExonsIv = CCEM.findcircAdjacent(circEndExons,Custom_exon_id2Iv,Iv2Custom_exon_id,start=False)
-
-exon_id2custom_exon_id = CCEM.readuniqgtf('Drosophila_melanogaster.BDGP5.75.exon_id.dedup.modified.gtf') # One to one matching because of deduplication
-
-#### From here on, need operation on each sample ###
-
-# Read counting results
-###---###
-Count_custom_exon_id = CCEM.readHTSeqCount('SRR1197272/htcount.strandNo',exon_id2custom_exon_id) # Reads count with custom_exon_id
-
-#CircExonCounts = CCEM.printCounts(circExons,Count_custom_exon_id)
-
-#
-circStartCount = CCEM.printCounts(circStartExons,Count_custom_exon_id,Custom_exon_id2Length)
-circStartAdjacentCount = CCEM.printCounts(circStartAdjacentExons,Count_custom_exon_id,Custom_exon_id2Length)
-
-circEndCount = CCEM.printCounts(circEndExons,Count_custom_exon_id,Custom_exon_id2Length)
-circEndAdjacentCount = CCEM.printCounts(circEndAdjacentExons,Count_custom_exon_id,Custom_exon_id2Length)
-
-
-#
-CCEM.printresults(circStartCount,circStartAdjacentCount,circStartExons,circStartAdjacentExons,'start')
-CCEM.printresults(circEndCount,circEndAdjacentCount,circEndExons,circEndAdjacentExons,'end')
-#
-exonskipjunctions = CCEM.exonskipjunction(circStartAdjacentExonsIv,circEndAdjacentExonsIv,start2end)
-
-####----####
-junctionReadCount = CCEM.readSJ_out_tab('SRR1197272/SRR1197272SJ.out.tab')
-
-skipJctCount = CCEM.getskipjunctionCount(exonskipjunctions,junctionReadCount)
-####----####
-circCount=CCEM.readcircCount('SRR1197272Chimeric.out.junction.fixed.circRNA')
-
-CCEM.printCirc_Skip_Count(circCount,skipJctCount,'SRR1197272')
-
-"""
-
-
-
+		# sortBed
+		a = pybedtools.BedTool(prefix+'CircSkipJunction')
+		b = a.sort()
+		b.moveto(prefix+'CircSkipJunction')
+		return prefix+'CircSkipJunction'
+		
