@@ -384,6 +384,7 @@ class CircNonCircExon(object):
 					count = skipJctCount[key]
 					Circ_Skip_Count.write(key.chrom + '\t' + str(key.start) + '\t' + str(key.end) + '\t' + count + '\t' + circCount[key] + '\t' + key.strand+'\n')
 				except KeyError:
+					Circ_Skip_Count.write(key.chrom + '\t' + str(key.start) + '\t' + str(key.end) + '\t' + count + '\t' + '0' + '\t' + key.strand+'\n')
 					pass
 		Circ_Skip_Count.close()
 		# sortBed
