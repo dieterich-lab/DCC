@@ -16,46 +16,45 @@ from fix2chimera import Fix2Chimera
 
 def main():
     
-    parser = argparse.ArgumentParser(prog='DCC',formatter_class=argparse.ArgumentDefaultsHelpFormatter, fromfile_prefix_chars='@', description='Contact jun.cheng@age.mpg.de')
+    parser = argparse.ArgumentParser(prog='DCC',formatter_class=argparse.RawDescriptionHelpFormatter, fromfile_prefix_chars='@', description='Contact jun.cheng@age.mpg.de')
     
     
     parser.add_argument('--version', action='version', version='%(prog)s 0.3.1b')
     parser.add_argument("Input", metavar='Input', nargs="+",
-                    help="Input of the chimeric.out.junction file from STAR. Alternatively a file with each sample name with path per line.")
+                    help="Input of the chimeric.out.junction file from STAR. Alternatively, a sample sheet specifying where your chimeric.out.junction files are, each sample per line, provide with @ prefix (e.g. @samplesheet).")
     #parser.add_argument("-O", "--output", dest="output", 
     #                  help="Tab delimited outputfile, order the same with input: \
     #                  chr\tstart\tend\tstand\tcount\tjunctiontype")
     parser.add_argument("-temp", "--temp", dest="temp", action='store_true', default=False,
                     help="Once specified, temp files will not be deleted.")
-    
                                                                                                         
     group = parser.add_argument_group("Find circRNA Options","Options to find circRNAs from STAR output.")
     group.add_argument("-D", "--detect", action='store_true', dest="detect", default=False,
-                    help="If specified, the program will start detecting circRNAs from chimeric junction.")                    
+                    help="Always specify if you want detect circRNAs from chimeric junctions.")                    
     #group.add_argument("-S", action='store_true', dest="strand", default=True,
     #                help="Specify when the library is stranded [Default].")
-    group.add_argument("-N", action='store_false', dest="strand", default=True,
+    group.add_argument("-N", "--nonstrand", action='store_false', dest="strand", default=True,
                     help="Specify when the library is non-stranded [default stranded].")
     group.add_argument("-E", "--endTol", dest="endTol", type=int, default= 5, choices=range(0,10),
-                    help="Maximum base pair tolerance of reads extending over junction sites: Interger")
+                    help="Maximum base pair tolerance of reads extending over junction sites. [Interger, default 5]")
     group.add_argument("-m", "--maximum", dest="max", type=int, default = 1000000,
-                    help="The maximum range of candidate circRNA allowed (including introns).")   
+                    help="The maximum range of candidate circRNA allowed (including introns). [default 1000000]")   
     group.add_argument("-n", "--minimum", dest="min", type=int, default = 30,
-                    help="The minimum range of candidate circRNA allowed (including introns).")
-    group.add_argument("-an", "--annotate",dest="annotate",
-                    help="Gene annotation file in GTF/GFF3 format, to annotate circRNAs (default with gene_id).")
+                    help="The minimum range of candidate circRNA allowed (including introns). [default 30]")
+    group.add_argument("-an", "--annotation",dest="annotate",
+                    help="Gene annotation file in GTF/GFF3 format, to annotate circRNAs by their host gene name/identifier.")
     #group.add_argument("-gf", "--getfasta", dest="getfasta",
     #                  help="Get fasta file of circular RNAs. If a exon annotation file is provided, the circular RNA sequence will only contain annotated exons, otherwise whole sequence.")
     group.add_argument("-Pi", "--PE-independent", action='store_true', dest="pairedendindependent", default=False,
-                    help="Specify when you have maped the PE data mates seperately. If specified, -mt1 and -mt2 should also be provied.")
+                    help="Specify when you have maped the PE data mates seperately. If specified, -mt1 and -mt2 should also be provied. [default False]")
     group.add_argument("-mt1", "--mate1", dest="mate1", nargs = '+',
-                    help="For paired end data, Chimeric.out.juntion file from mate1 independent mapping result.")  
+                    help="For paired end data, Chimeric.out.juntion files from mate1 independent mapping result.")  
     group.add_argument("-mt2", "--mate2", dest="mate2", nargs = '+',
-                    help="For paired end data, Chimeric.out.juntion file from mate2 independent mapping result.")
+                    help="For paired end data, Chimeric.out.juntion files from mate2 independent mapping result.")
     parser.add_argument_group(group)
     
         
-    group = parser.add_argument_group("Filtering Options", "Options to filter the circRNA candidates.")                              
+    group = parser.add_argument_group("Filtering Options", "Options to filter the circRNA candidates.")
     group.add_argument("-F", "--filter", action='store_true', dest="filter", default=False,
                     help="If specified, the program will start filtering.")
     group.add_argument("-M", "--chrM", action='store_true', dest="chrM",default=False,
@@ -65,21 +64,21 @@ def main():
     group.add_argument("-R", "--rep_file", dest="rep_file",
                     help="Coustom repetitive region file in GTF format, to filter out circRNAs candidates in repetitive regions.") 
     group.add_argument("-L", "--Ln", dest="length", type=int, default=50,
-                    help="Minimum length to check for repetitive regions, default 50.")                                                      
-    group.add_argument('-Nr', nargs=2, type=int, metavar=('level1','threshold1'), default=[2,5], help='Minimum read counts required for circRNAs, \
-                        Minimum number of samples above the expression corresponding level')
+                    help="Minimum length to check for repetitive regions. [default 50]")                                                      
+    group.add_argument('-Nr', nargs=2, type=int, metavar=('level1','threshold1'), default=[2,5], help='Minimum read counts required for circRNAs; \
+                        Minimum number of samples above the corresponding expression level')
     group.add_argument("-fg", "--filterbygene", action='store_true', dest="filterbygene", default=False,
-                    help="Filter by gene annotation, candidates are not allowed to cover more than one gene.")                                        
+                    help="If specified, filter by gene annotation. candidates are not allowed to span more than one gene.")                                        
     parser.add_argument_group(group)
     
     
     group = parser.add_argument_group("Host gene count Options", "Options to count host gene expression.")
     group.add_argument("-G", "--gene", action='store_true', dest="gene", default=False,
-                    help="If specified, the program will count host gene expression given circRNA coordinates.")
+                    help="If specified, the program will count host gene expression given circRNA coordinates. By default, use the circRNA candidates detected from the same run.")
     group.add_argument("-C", "--circ", dest="circ",
                     help="User specified circRNA coordinates, any tab delimited file with first three columns as circRNA coordinates: chr\tstart\tend, which DCC will use to count host gene expression.")                  
     group.add_argument("-B", "--bam", dest="bam", nargs = '+',
-                    help="The mapped bam file where host gene count counted from, the same oder with the input files.")
+                    help="A file specify where the mapped bam files are, from which host gene expression are counted from. Should be the same oder with the input chimeric junction files.")
     group.add_argument("-A", "--refseq", dest="refseq",
                     help="Reference sequnce fasta file.")
     #group.add_argument("-seq", "--seq", dest="seq",         
