@@ -6,53 +6,12 @@
 # filenames. The files should all have the same number of rows
 
 import sys
-#from optparse import OptionParser
 import pybedtools
 import re
 import os
 
-#usage = "usage: %prog -c column2select -t genecountOrcirccount -o outputfile"
-#parser = OptionParser(usage=usage)
-#parser.add_option("-k", "--col", dest="col",
-#                  help="Column to select and paste together")
-#parser.add_option("-c", "--circ", action='store_true', dest="type", default=True,
-#                  help="The input are circRNA counts")
-#parser.add_option("-h", "--host", action='store_false', dest="type", default=False,
-#                  help="The input are host gene counts")
-#parser.add_option("-o", "--output", dest="output",
-#                  help="The output gene expression count table")                  
-#(options, args) = parser.parse_args()
-
-
 class Combine(object):
-#    def __init__(self, Alist, genetype, output, debug=False):
-#        ''' A model to combine circRNA coordinates from all samples and combine individual counts to one table'''
-#        # Alist is a list of files to be combined, either mapped circRNA or host gene counts
-#        self.Alist = Alist
-#        self.genetype = genetype
-#        self.output = output
-#
-#        if self.genetype == 'circ':
-#            self.comb_coor(self.Alist)
-#            self.map('_tmp_DCC/tmp_coordinates', self.Alist)
-#            res = self.combine(self.Alist, col=8, circ=True)
-#        elif self.genetype == 'host':
-#            res = self.combine(self.Alist, col=6, circ=False)
-#        else:
-#            print "genetype could only be 'circ' or 'host'!"  
-#        self.writeouput(self.output, res)
-#        
-#        # Delete tmp file is not debug model
-#        if debug:
-#            pass
-#        else:
-#            # Delete intermidiate circRNA count files
-#            pattern1 = '\.+circRNA\.*'
-#            self.deletfile(os.getcwd(),pattern1)
-#            pattern2 = '\.+hostgene$'
-#            self.deletfile(os.getcwd(),pattern2)
-        
-    # Input a list of file names, which are the result of sorted circRNA file
+
     def comb_coor(self, circfiles, strand=True):
         '''
         Combine coordinates of all samples to one.
