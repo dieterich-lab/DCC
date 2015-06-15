@@ -56,7 +56,7 @@ def main():
         
     group = parser.add_argument_group("Filtering Options", "Options to filter the circRNA candidates.")
     group.add_argument("-F", "--filter", action='store_true', dest="filter", default=False,
-                    help="If specified, the program will start filtering.")
+                    help="If specified, the program will do filtering on the detection results.")
     group.add_argument("-M", "--chrM", action='store_true', dest="chrM",default=False,
                     help="If specified, candidates from mitochondria chromosome will be removed.")
     #group.add_argument("-J", "--junction", dest="junction",
