@@ -51,7 +51,7 @@ The detection of circRNAs from RNAseq data through DCC can be summarised by thre
 
 2. Prepare files needed by DCC. In summary, only one file is mandatory: 'samplesheet', which specifies where your Chimeric.out.junction files are stored, with one sample per line. Three other files are recommended: 1). 'Repetitive_regions.gtf', a GTF format annotation of repetitive regions, which is used to filter out circRNA candidates from repetitive regions. 2). For paired end sequencing, 'mate1' and 'mate2', which specify where your Chimeric.out.junction files from mate separate mapping are.
 
-3. Run DCC. DCC can be run for different purpose with different models. In summary, 1) Run DCC to detect circRNAs and host gene expression (use -D and -G option ) 2). Run DCC only to detect circRNAs (use -D option only). 
+3. Run DCC. DCC can be run for different purpose with different modes. In summary, 1) Run DCC to detect circRNAs and host gene expression (use -D and -G option ) 2). Run DCC only to detect circRNAs (use -D option only). 
 
 .. 3) Run DCC to count host gene expression with a custom provided circRNA list in BED format (use -G option, provide custom circRNA with -C option). 
 
