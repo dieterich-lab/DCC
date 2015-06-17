@@ -12,7 +12,18 @@ DCC dependes on pysam, pybedtools, numpy and HTSeq
 The installation process of DCC will automatically check for the dependencies, if any dependence is missing from path, it will be automatically installed.
 
 To download DCC from github, you can:
-1) From git clone
+
+1) Download DCC release: https://github.com/dieterich-lab/DCC/releases
+  
+  .. code-block::bash
+  
+  $ tar -zxvf DCC-<version>.tar.gz
+  
+  $ cd DCC-<version>
+  
+  $ python setup.py install
+  
+2) From git clone
 
 .. code-block:: bash
 
@@ -21,10 +32,6 @@ To download DCC from github, you can:
   $ cd DCC
   
   $ python setup.py install
-  
-2) Alternatively, download zipped package. 
-
-On the right site of https://github.com/dieterich-lab/DCC, click 'Download Zip'. Unzip the file, do the same as 1.
 
 3) To check for installation, do:
 
