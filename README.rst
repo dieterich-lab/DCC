@@ -15,13 +15,13 @@ To download DCC from github, you can:
 
 1) Download DCC release: https://github.com/dieterich-lab/DCC/releases
   
-  .. code-block::bash
-  
-  $ tar -zxvf DCC-<version>.tar.gz
-  
-  $ cd DCC-<version>
-  
-  $ python setup.py install
+.. code-block:: bash
+
+ $ tar -zxvf DCC-<version>.tar.gz
+ 
+ $ cd DCC-<version>
+ 
+ $ python setup.py install
   
 2) From git clone
 
