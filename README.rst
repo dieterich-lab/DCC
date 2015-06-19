@@ -166,9 +166,12 @@ Alternatively, load the processed Westholm et al. data from CircTest package.
 
 .. code-block:: R
 
-  CircRNACount_filtered <- data(CircRNACount)
-  CircCoordinates_filtered <- data(CircCoordinates)
-  LinearCount_filtered <- data(LinearCount)
+  data(Circ)
+  CircRNACount_filtered <- Circ
+  data(Coordinates)
+  CircCoordinates_filtered <- Coordinates
+  data(Linear)
+  LinearCount_filtered <- Linear
 
 3) Test for host-independently regulated circRNAs
 
