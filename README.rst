@@ -154,6 +154,8 @@ Test for host-independently regulated circRNAs with CircTest package
 
 .. code-block:: R
 
+  library(CircTest)
+
   CircRNACount <- read.delim('CircRNACount',header=T)
   LinearCount <- read.delim('LinearCount',header=T)
   CircCoordinates <- read.delim('CircCoordinates',header=T)
@@ -165,7 +167,9 @@ Test for host-independently regulated circRNAs with CircTest package
 Alternatively, load the processed Westholm et al. data from CircTest package.
 
 .. code-block:: R
-
+  
+  library(CircTest)
+  
   data(Circ)
   CircRNACount_filtered <- Circ
   data(Coordinates)
