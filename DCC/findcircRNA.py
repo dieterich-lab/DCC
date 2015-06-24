@@ -166,4 +166,67 @@ class Findcirc(object):
 					outfile.write(('\t').join(res)+ '\n')
 	outfile.close()
         junctionfile.close()
-#
+
+class Sort(object):
+    
+    def __init__(self):
+        """ 
+        The Findcirc_output option takes the output of Class Findcirc. 
+        Output is the sorted and bed format table with read counts information.
+        """
+        #self.strand=strand
+        #self.Findcirc_output=open(Findcirc_output,'r').readlines()
+        #self.output=output
+        #self.sort_count(self.Findcirc_output)
+      
+    def count(self,sortedlist,strand=True):
+        '''
+        This function takes a sorted list of circRNAs, will be called by function circ_sort, count each circRNAs and return a bed format count table 
+        '''
+        cnt=collections.Counter()
+        tmp_count = [] # store the bed format count circRNA count, but duplicated lines are not yet removed
+        for itm in sortedlist:
+            if strand:
+                circs = (itm[0],itm[1],itm[2],itm[3])
+            elif not strand:
+                circs = (itm[0],itm[1],itm[2])
+            else:
+                print "Please specify correct strand information."
+            cnt[circs] += 1
+            itm.append(str(cnt[circs]))
+            #tmp_count.append( [itm[0],itm[1],itm[2],itm[3],itm[7],itm[4],itm[5],itm[6]] )
+            tmp_count.append( [itm[0],itm[1],itm[2],'.',itm[7],itm[3],itm[4],itm[5],itm[6]] )
+        # reverse the order of tmp_count, so when remove duplicates, the one counted all the counts
+        tmp_count.reverse()
+        # remove duplicated lines
+        tmp_count_dedup = []
+        lines_seen = set() # holds the lines already seen
+        for itm in tmp_count:
+            if strand:
+                tmp_itm = tuple((itm[0],itm[1],itm[2],itm[5]))
+            elif not strand:
+                tmp_itm = tuple((itm[0],itm[1],itm[2]))
+            if tmp_itm not in lines_seen:
+                tmp_count_dedup.append(itm)
+                lines_seen.add(tmp_itm)
+        # return the deduplicated count table (list)
+        tmp_count_dedup.reverse()
+        return tmp_count_dedup
+        
+            
+    def sort_count(self,findcircOut,output,strand=True):
+        # Equal to sort command in linux
+        # file_list is the object of file read by readlines()
+        file_list=open(findcircOut,'r').readlines()
+        #print 'debugging'
+        output = open(output,'w')
+        tmp_sort = []
+        for itm in file_list:
+            line_tmp = itm.strip().split('\t')
+            tmp_sort.append(line_tmp)
+        tmp_sorted = sorted(tmp_sort,key=lambda x: (x[0],int(x[1]),int(x[2]),x[5]))
+        sorted_count = self.count(tmp_sorted,strand=strand)
+        output.writelines( '\t'.join(j) + '\n' for j in sorted_count )
+        output.close()
+
+
