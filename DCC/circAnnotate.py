@@ -16,11 +16,11 @@ class CircAnnotate(object):
 	new_gtf = open('_tmp_DCC/tmp_'+os.path.basename(gtf_file)+'.gene','w')
 	for feature in gtf:
 		# Select only exon line
-		if feature.type == 'gene':
+		if feature.type == 'gene' or feature.type == 'exon':
 			new_gtf.write(feature.get_gff_line())
 		else:
 			pass
-	new_gtf.close()      
+	new_gtf.close()
     
     def annotate(self,circfile,annotationfile,output):
         # the circRNA file should be in a bed format, have chr\tstart\tend\t'.'\tjunctiontype\tstrand
@@ -45,15 +45,13 @@ class CircAnnotate(object):
         circ = pybedtools.BedTool(circfile)
         ann = pybedtools.BedTool(annotationfile)
         if self.strand:
-            tmpintersect = circ.intersect(ann,wa=True,wb=True,loj=True,s=True)
-            #print 'Intersect with nonstrand'
+            tmpintersect = circ.intersect(ann,wa=True,wb=True,loj=True,s=True,nonamecheck=True)
         else:
-            tmpintersect = circ.intersect(ann,wa=True,wb=True,loj=True,s=False)
-            #print 'Intersect with nonstrand'
+            tmpintersect = circ.intersect(ann,wa=True,wb=True,loj=True,s=False,nonamecheck=True)
         if self.strand:
             tmpresult = tmpintersect.groupby(g=(1,2,3,5,6),c=ncol+9,o='distinct')
         else:
-            tmpresult = tmpintersect.groupby(g=(1,2,3,5,13),c=ncol+9,o='distinct')
+            tmpresult = tmpintersect.groupby(g=(1,2,3,5),c=(ncol+7,ncol+9),o=('first','distinct'))
         tmpintersect.moveto('_tmp_DCC/tmp_intersect')
         tmpresult.moveto('_tmp_DCC/tmp_AnnotatedUnsorted')
         self.printbycolumns('_tmp_DCC/tmp_AnnotatedUnsorted',output,order=[1,2,3,6,4,5])
@@ -78,8 +76,8 @@ class CircAnnotate(object):
         right = pybedtools.BedTool('_tmp_DCC/tmp_right')
         ann = pybedtools.BedTool(annotationfile)
         overallintersect = overall.intersect(ann,wa=True,wb=True,loj=True,s=False)
-        leftintersect = left.intersect(ann,wa=True,wb=True,loj=True,s=False)
-        rightintersect = right.intersect(ann,wa=True,wb=True,loj=True,s=False)
+        leftintersect = left.intersect(ann,wa=True,wb=True,loj=True,s=False,nonamecheck=True)
+        rightintersect = right.intersect(ann,wa=True,wb=True,loj=True,s=False,nonamecheck=True)
         overallresult = overallintersect.groupby(g=(1,2,3,6),c=9,o='distinct')
         leftresult = leftintersect.groupby(g=(1,2,3,6),c=9,o='distinct')
         rightresult = rightintersect.groupby(g=(1,2,3,6),c=9,o='distinct')
@@ -183,7 +181,7 @@ class CircAnnotate(object):
                                 gene = attr['transcript_id']
                             except KeyError:
                                 gene = 'N/A'
-            except ValueError:
+            except:
                 gene = self.searchGeneName1(annotationstring)
             
         return gene

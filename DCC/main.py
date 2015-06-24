@@ -13,6 +13,7 @@ import circAnnotate
 import time
 #import circFilter
 from fix2chimera import Fix2Chimera
+#import pdb
 
 def main():
     
@@ -192,7 +193,7 @@ def main():
                 else:
                     wrapfindcirc(files,circfilename,strand=True,pairdendindependent=False)
 
-            elif not options.strand:      	        
+            else:      	        
                 if options.pairedendindependent:
                     wrapfindcirc(files,circfilename,strand=False,pairdendindependent=True)
                 else:
@@ -213,14 +214,11 @@ def main():
         print('Start to combine individual circRNA read counts.')
         logging.info('Start to combine individual circRNA read counts.')
 
-        if options.strand:
-            cm.comb_coor(circfiles,strand=True)
-            cm.map('_tmp_DCC/tmp_coordinates', circfiles, strand=True)
-        else:
-            cm.comb_coor(circfiles,strand=False)
-            cm.map('_tmp_DCC/tmp_coordinates', circfiles, strand=False)
+        cm.comb_coor(circfiles,strand=options.strand)
+        cm.map('_tmp_DCC/tmp_coordinates', circfiles, strand=options.strand)
+
         res = cm.combine([files+'mapped' for files in circfiles],col=7,circ=True)
-        
+
         if options.filter:
             cm.writeouput('_tmp_DCC/tmp_circCount', res)
             if options.annotate:

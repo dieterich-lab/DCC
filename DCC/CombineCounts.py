@@ -9,46 +9,78 @@ import sys
 import pybedtools
 import re
 import os
+# import pdb
+from collections import OrderedDict
+from copy import deepcopy
 
 class Combine(object):
-
+    
     def comb_coor(self, circfiles, strand=True):
         '''
         Combine coordinates of all samples to one.
         '''
         coordinates = open('_tmp_DCC/tmp_coordinates','w')
-        coors = set()
+        #coors = set()
         coorsDict = {} # Use all except the strand and junction type information as key, to uniq the list.
+
         for files in circfiles:
             onefile = open(files,'r')
             for lines in onefile:
                 tmp = lines.split('\t')
-                
                 if strand:
-                    coors.add(tmp[0]+'\t'+tmp[1]+'\t'+tmp[2]+'\t'+'.'+'\t'+tmp[6]+'\t'+tmp[5]+'\n')
+                    coorsDict[tmp[0]+'\t'+tmp[1]+'\t'+tmp[2]+'\t'+'.'+'\t'+tmp[5]] = '\t'+tmp[6]+'\t'+tmp[5]+'\n'
                 else:
-                    coorsDict[tmp[0]+'\t'+tmp[1]+'\t'+tmp[2]+'\t'+'.'+'\t'] = tmp[6]+'\t'+tmp[5]+'\n'                    
+                    coorsDict[tmp[0]+'\t'+tmp[1]+'\t'+tmp[2]+'\t'+'.'+'\t'] = tmp[6]+'\t'+tmp[5]+'\n'
             onefile.close()
-
-        if not strand:
+        
+        if strand:
+            coors = ['\t'.join(key.split('\t')[:-1])+value for key,value in coorsDict.iteritems()]
+        else:
             coors = ['{}{}'.format(key,value) for key,value in coorsDict.iteritems()]
 
         coorsSorted = self.sortBed(coors,retList=True)
         for itm in coorsSorted:
             coordinates.write('\t'.join(itm))
     
-    def map(self, coordinates, Alist, strand=True, col=5,o='distinct'):
-        '''
-        Take the combined coordinates and list of circRNA files.
-        '''
-        bed1 = pybedtools.BedTool(coordinates)
-        for files in Alist:
-            bed2 = pybedtools.BedTool(files)
-            if strand:
-                mapped = bed1.map(bed2,s=True, f=1,r=True,c=col,o=o)
-            else:
-                mapped = bed1.map(bed2,s=False, f=1,r=True,c=col,o=o)
-            mapped.moveto(files+'mapped')
+    def map(self,coordinates, filelist, strand=True, col=5):
+        # read coordinates
+        mapto = OrderedDict()
+        with open(coordinates) as coor:
+            for lin in coor:
+                line_split = lin.split('\t')
+                if strand:
+                    mapto.setdefault(line_split[0]+line_split[1]+line_split[2]+line_split[5].strip('\n'),[]).append(lin.strip('\n'))
+                else:
+                    mapto.setdefault(line_split[0]+line_split[1]+line_split[2],[]).append(lin.strip('\n'))
+
+        for fname in filelist:
+            run_mapto = deepcopy(mapto)
+            with open(fname) as f:
+                for lin in f:
+                    line_split = lin.split('\t')
+                    if strand:
+                        cor = line_split[0]+line_split[1]+line_split[2]+line_split[5].strip('\n')
+                    else:
+                        cor = line_split[0]+line_split[1]+line_split[2]
+                    run_mapto[cor].append(line_split[col-1])
+            with open(fname+'mapped','w') as fout:
+                for key in run_mapto:
+                    if len(run_mapto[key]) == 1:
+                        run_mapto[key].append('0')
+                    fout.write('\t'.join(run_mapto[key])+'\n')
+
+    # def map(self, coordinates, Alist, strand=True, col=5,o='distinct'):
+    #     '''
+    #     Take the combined coordinates and list of circRNA files.
+    #     '''
+    #     bed1 = pybedtools.BedTool(coordinates)
+    #     for files in Alist:
+    #         bed2 = pybedtools.BedTool(files)
+    #         if strand:
+    #             mapped = bed1.map(bed2,s=True, f=1,r=True,c=col,o=o,nonamecheck=True)
+    #         else:
+    #             mapped = bed1.map(bed2,s=False, f=1,r=True,c=col,o=o,nonamecheck=True)
+    #         mapped.moveto(files+'mapped')
 
     def deletfile(self, dirt, pattern):
         # First check wheter the input is a list of files or a regular expression string

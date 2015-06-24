@@ -127,9 +127,9 @@ class CircNonCircExon(object):
 		circ = pybedtools.BedTool(circ_file)
 		gtf = pybedtools.BedTool(modified_gtf_file)
 		if strand:
-			intersectfile = circ.intersect(gtf,wa=True,wb=True,loj=True,s=True)
+			intersectfile = circ.intersect(gtf,wa=True,wb=True,loj=True,s=True,nonamecheck=True)
 		else:
-			intersectfile = circ.intersect(gtf,wa=True,wb=True,loj=True)
+			intersectfile = circ.intersect(gtf,wa=True,wb=True,loj=True,nonamecheck=True)
 		# Store circExons as: circle start or end intervals as key, custom_exon_id as value
 		circExons = {}
 		for lin in intersectfile:
@@ -375,17 +375,17 @@ class CircNonCircExon(object):
 
 	def printCirc_Skip_Count(self,circCount,skipJctCount,prefix):
 		Circ_Skip_Count = open(prefix+'CircSkipJunction','w')
-		if len(skipJctCount) == 0:
-			Circ_Skip_Count.write('chrNone'+'\t'+'1'+'\t'+'2'+'\t'+'.'+'\t'+'.'+'\t'+'.'+'\n')
-		else:
-			for key in skipJctCount:
-				try:
-					# count = skipJctCount[key] + '\t' + circCount[key]
-					count = skipJctCount[key]
-					Circ_Skip_Count.write(key.chrom + '\t' + str(key.start) + '\t' + str(key.end) + '\t' + count + '\t' + circCount[key] + '\t' + key.strand+'\n')
-				except KeyError:
-					Circ_Skip_Count.write(key.chrom + '\t' + str(key.start) + '\t' + str(key.end) + '\t' + count + '\t' + '0' + '\t' + key.strand+'\n')
-					#pass
+		# if len(skipJctCount) == 0:
+		# 	Circ_Skip_Count.write('chrNone'+'\t'+'1'+'\t'+'2'+'\t'+'.'+'\t'+'.'+'\t'+'.'+'\n')
+		# else:
+		for key in skipJctCount:
+			try:
+				# count = skipJctCount[key] + '\t' + circCount[key]
+				count = skipJctCount[key]
+				Circ_Skip_Count.write(key.chrom + '\t' + str(key.start) + '\t' + str(key.end) + '\t' + count + '\t' + circCount[key] + '\t' + key.strand+'\n')
+			except KeyError:
+				Circ_Skip_Count.write(key.chrom + '\t' + str(key.start) + '\t' + str(key.end) + '\t' + count + '\t' + '0' + '\t' + key.strand+'\n')
+				#pass
 		Circ_Skip_Count.close()
 		# sortBed
 		a = pybedtools.BedTool(prefix+'CircSkipJunction')
