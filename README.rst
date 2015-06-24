@@ -12,7 +12,18 @@ DCC dependes on pysam, pybedtools, numpy and HTSeq
 The installation process of DCC will automatically check for the dependencies, if any dependence is missing from path, it will be automatically installed.
 
 To download DCC from github, you can:
-1) From git clone
+
+1) Download DCC release: https://github.com/dieterich-lab/DCC/releases
+  
+.. code-block:: bash
+
+ $ tar -zxvf DCC-<version>.tar.gz
+ 
+ $ cd DCC-<version>
+ 
+ $ python setup.py install
+  
+2) From git clone
 
 .. code-block:: bash
 
@@ -21,10 +32,6 @@ To download DCC from github, you can:
   $ cd DCC
   
   $ python setup.py install
-  
-2) Alternatively, download zipped package. 
-
-On the right site of https://github.com/dieterich-lab/DCC, click 'Download Zip'. Unzip the file, do the same as 1.
 
 3) To check for installation, do:
 
@@ -126,7 +133,7 @@ NOTE: -F flag is mandatory, if you want to filter on the results. All filtering 
 
 The output of DCC include: CircRNACount, CircCoordinates, LinearCount and CircSkipJunctions.
 
-**CircRNACount:** a table containing read counts for circRNAs detected. First thre columns are chr, circRNA start, circRNA end. From fourth column on are the circRNA read counts, one sample per column, shown in the order given in your samplesheet.
+**CircRNACount:** a table containing read counts for circRNAs detected. First three columns are chr, circRNA start, circRNA end. From fourth column on are the circRNA read counts, one sample per column, shown in the order given in your samplesheet.
 
 **CircCoordinates:** CircRNA annotation in BED format. The columns are chr, start, end, genename, junctiontype (come from STAR, 1 for GT/AG, 2 for CT/AC), strand, circRNA region (startregion-endregion), overall regions (the genomic features circRNA coordinates interval covers).
 
@@ -147,6 +154,8 @@ Test for host-independently regulated circRNAs with CircTest package
 
 .. code-block:: R
 
+  library(CircTest)
+
   CircRNACount <- read.delim('CircRNACount',header=T)
   LinearCount <- read.delim('LinearCount',header=T)
   CircCoordinates <- read.delim('CircCoordinates',header=T)
@@ -158,10 +167,15 @@ Test for host-independently regulated circRNAs with CircTest package
 Alternatively, load the processed Westholm et al. data from CircTest package.
 
 .. code-block:: R
-
-  CircRNACount_filtered <- data(CircRNACount)
-  CircCoordinates_filtered <- data(CircCoordinates)
-  LinearCount_filtered <- data(LinearCount)
+  
+  library(CircTest)
+  
+  data(Circ)
+  CircRNACount_filtered <- Circ
+  data(Coordinates)
+  CircCoordinates_filtered <- Coordinates
+  data(Linear)
+  LinearCount_filtered <- Linear
 
 3) Test for host-independently regulated circRNAs
 
