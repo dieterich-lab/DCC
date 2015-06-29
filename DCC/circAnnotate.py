@@ -189,6 +189,11 @@ class CircAnnotate(object):
                     gene = self.searchGeneName1(annotation)
                 collect.add(gene)
             # Collapse all genes togethor
+            if len(collect) > 1:
+                try:
+                    collect.remove('N/A')
+                except KeyError:
+                    pass
             genes = ','.join(collect)
             
         return genes
