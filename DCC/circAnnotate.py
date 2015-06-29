@@ -165,7 +165,7 @@ class CircAnnotate(object):
         else:
             # Split the annotationstring by ',' which collapsed by bedtools groupby
             annotationstrings = annotationstring.split(',')
-            collect = []
+            collect = set()
             for annotation in annotationstrings:
                 try:
                     attr = HTSeq.parse_GFF_attribute_string(annotation)
@@ -187,7 +187,7 @@ class CircAnnotate(object):
                                     gene = 'N/A'
                 except:
                     gene = self.searchGeneName1(annotation)
-                collect.append(gene)
+                collect.add(gene)
             # Collapse all genes togethor
             genes = ','.join(collect)
             
