@@ -194,3 +194,15 @@ Alternatively, load the processed Westholm et al. data from CircTest package.
                   groupindicator1=c(rep('1days',6),rep('4days',6),rep('20days',6)), 
                   lab_legend='Ages' )
  }
+
+
+--------------------
+
+
+========================
+Error and solutions
+========================
+
+ - ERROR: File <file> has inconsistent naming convention for record:
+   CHR_MG132_PATCH 124291803 124294101 ENSMUSG00000098810 . - protein_coding exon CAAA01180111.1
+Please update your bedtools at least to 2.24.0, and make sure the new version is included in your path.
