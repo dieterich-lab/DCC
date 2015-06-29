@@ -161,30 +161,37 @@ class CircAnnotate(object):
         
     def searchGeneName(self,annotationstring):
         if annotationstring == '.':
-            gene = 'N/A'
+            genes = 'N/A'
         else:
-            try:
-                attr = HTSeq.parse_GFF_attribute_string(annotationstring)
-                # Search for gene_name which is used by ensembl gtf annotation
+            # Split the annotationstring by ',' which collapsed by bedtools groupby
+            annotationstrings = annotationstring.split(',')
+            collect = []
+            for annotation in annotationstrings:
                 try:
-                    gene = attr['gene_name']
-                except KeyError:
-                    # Search for gene, which might used in GFF annotation
+                    attr = HTSeq.parse_GFF_attribute_string(annotation)
+                    # Search for gene_name which is used by ensembl gtf annotation
                     try:
-                        gene = attr['gene']
+                        gene = attr['gene_name']
                     except KeyError:
-                        # Search for gene_id
+                        # Search for gene, which might used in GFF annotation
                         try:
-                            gene = attr['gene_id']
+                            gene = attr['gene']
                         except KeyError:
+                            # Search for gene_id
                             try:
-                                gene = attr['transcript_id']
+                                gene = attr['gene_id']
                             except KeyError:
-                                gene = 'N/A'
-            except:
-                gene = self.searchGeneName1(annotationstring)
+                                try:
+                                    gene = attr['transcript_id']
+                                except KeyError:
+                                    gene = 'N/A'
+                except:
+                    gene = self.searchGeneName1(annotation)
+                collect.append(gene)
+            # Collapse all genes togethor
+            genes = ','.join(collect)
             
-        return gene
+        return genes
         
         
         
