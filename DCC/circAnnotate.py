@@ -75,7 +75,7 @@ class CircAnnotate(object):
         left = pybedtools.BedTool('_tmp_DCC/tmp_left')
         right = pybedtools.BedTool('_tmp_DCC/tmp_right')
         ann = pybedtools.BedTool(annotationfile)
-        overallintersect = overall.intersect(ann,wa=True,wb=True,loj=True,s=False)
+        overallintersect = overall.intersect(ann,wa=True,wb=True,loj=True,s=False,nonamecheck=True)
         leftintersect = left.intersect(ann,wa=True,wb=True,loj=True,s=False,nonamecheck=True)
         rightintersect = right.intersect(ann,wa=True,wb=True,loj=True,s=False,nonamecheck=True)
         overallresult = overallintersect.groupby(g=(1,2,3,6),c=9,o='distinct')
