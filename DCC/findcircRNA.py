@@ -2,6 +2,7 @@
 
 import re
 import collections
+import pdb
 
 class Findcirc(object):
     # Initialize some parameters
@@ -51,12 +52,22 @@ class Findcirc(object):
         lines = [] # A list of all lines
         suffice = False
         for line in junctionfile:
-            if len(line.split('\t')[9].split('.')[-1]) == 1:
-                suffice = True
+            line_split = line.split('\t')
+            if not suffice:
+                if len(line_split[9].split('.')[-1]) == 1:
+                    suffice = True
             if suffice:
-                readname = '.'.join(line.split('\t')[9].split('.')[:-1])
+                
+
+                ### Debug code ####
+                if type(line_split[9].split('.')[-1]) is list:
+                    pdb.set_trace()
+
+                ### Debug code ####
+
+                readname = '.'.join(( line_split[1],line_split[2],line_split[4], '.'.join(line_split[9].split('.')[:-1]) ))
             else:
-                readname = line.split('\t')[9]
+                readname = '.'.join((line_split[1],line_split[2],line_split[4],line_split[9]))
             reads.append(readname)
             lines.append(line)
         

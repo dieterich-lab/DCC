@@ -13,7 +13,7 @@ import circAnnotate
 import time
 #import circFilter
 from fix2chimera import Fix2Chimera
-#import pdb
+import pdb
 
 def main():
     
@@ -32,8 +32,8 @@ def main():
     group = parser.add_argument_group("Find circRNA Options","Options to find circRNAs from STAR output.")
     group.add_argument("-D", "--detect", action='store_true', dest="detect", default=False,
                     help="Always specify if you want detect circRNAs from chimeric junctions.")                    
-    #group.add_argument("-S", action='store_true', dest="strand", default=True,
-    #                help="Specify when the library is stranded [Default].")
+    group.add_argument("-ss", action='store_true', dest="secondstrand", default=False,
+                    help="For stranded libraries, specify when the library is fr-secondstrand.")
     group.add_argument("-N", "--nonstrand", action='store_false', dest="strand", default=True,
                     help="Specify when the library is non-stranded [default stranded].")
     group.add_argument("-E", "--endTol", dest="endTol", type=int, default= 5, choices=range(0,10),
@@ -218,6 +218,22 @@ def main():
         cm.map('_tmp_DCC/tmp_coordinates', circfiles, strand=options.strand)
 
         res = cm.combine([files+'mapped' for files in circfiles],col=7,circ=True)
+
+        # swap strand if the sequences are sense strand
+        if (options.secondstrand and options.strand):
+            logging.info('Swap strand information.')
+            strand_swap={}
+            strand_swap['+\n']='-\n'
+            strand_swap['-\n']='+\n'
+            toswap = open('_tmp_DCC/tmp_coordinates').readlines()
+            swaped = open('_tmp_DCC/tmp_coordinatesswaped','w')
+            for lin in toswap:
+                lin_split = lin.split('\t')
+                lin_split[5] = strand_swap[lin_split[5]]
+                swaped.write('\t'.join(lin_split))
+            swaped.close()
+            os.remove('_tmp_DCC/tmp_coordinates')
+            os.rename('_tmp_DCC/tmp_coordinatesswaped','_tmp_DCC/tmp_coordinates')
 
         if options.filter:
             cm.writeouput('_tmp_DCC/tmp_circCount', res)

@@ -41,13 +41,11 @@ class Fix2Chimera(object):
 			if line_split[2] == '+':
 				line_split[2] = '-'
 				line_split[5] = '-'
-				line_split[6] = modify_junctiontype(line_split[6])
-				output.write( '\t'.join((line_split)) )
 			else:
 				line_split[2] = '+'
 				line_split[5] = '+'
-				line_split[6] = modify_junctiontype(line_split[6])
-				output.write( '\t'.join((line_split)) )
+			line_split[6] = modify_junctiontype(line_split[6])
+			output.write( '\t'.join((line_split[0],line_split[4],line_split[2],line_split[3],line_split[1],line_split[5],line_split[6],line_split[7],line_split[8],line_split[9],line_split[10],line_split[11],line_split[12],line_split[13])) )
 
 		chimeric_junction.close()
 		output.close()
