@@ -57,14 +57,6 @@ class Findcirc(object):
                 if len(line_split[9].split('.')[-1]) == 1:
                     suffice = True
             if suffice:
-                
-
-                ### Debug code ####
-                if type(line_split[9].split('.')[-1]) is list:
-                    pdb.set_trace()
-
-                ### Debug code ####
-
                 readname = '.'.join(( line_split[1],line_split[2],line_split[4], '.'.join(line_split[9].split('.')[:-1]) ))
             else:
                 readname = '.'.join((line_split[1],line_split[2],line_split[4],line_split[9]))
