@@ -20,7 +20,7 @@ def main():
     parser = argparse.ArgumentParser(prog='DCC',formatter_class=argparse.RawDescriptionHelpFormatter, fromfile_prefix_chars='@', description='Contact jun.cheng@age.mpg.de')
     
     
-    parser.add_argument('--version', action='version', version='%(prog)s 0.3.1c')
+    parser.add_argument('--version', action='version', version='%(prog)s 0.3.2')
     parser.add_argument("Input", metavar='Input', nargs="+",
                     help="Input of the chimeric.out.junction file from STAR. Alternatively, a sample sheet specifying where your chimeric.out.junction files are, each sample per line, provide with @ prefix (e.g. @samplesheet).")
     #parser.add_argument("-O", "--output", dest="output", 
@@ -101,7 +101,7 @@ def main():
     #formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     #ch.setFormatter(formatter)
     #root.addHandler(ch)
-
+    logging.info('version:0.3.2')
     logging.info(' '.join(sys.argv))
     logging.info('Program Started')  
     
