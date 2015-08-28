@@ -64,7 +64,7 @@ def main():
     #                  help="Provide a coustom junction file in gtf format, if only specify as True, only GT/AG or CT/AC junction will be considered.")
     group.add_argument("-R", "--rep_file", dest="rep_file",
                     help="Coustom repetitive region file in GTF format, to filter out circRNAs candidates in repetitive regions.") 
-    group.add_argument("-L", "--Ln", dest="length", type=int, default=50,
+    group.add_argument("-L", "--Ln", dest="length", type=int, default=20,
                     help="Minimum length to check for repetitive regions. [default 50]")                                                      
     group.add_argument('-Nr', nargs=2, type=int, metavar=('level1','threshold1'), default=[2,5], help='Minimum read counts required for circRNAs; \
                         Minimum number of samples above the corresponding expression level')
