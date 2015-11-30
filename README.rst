@@ -1,6 +1,12 @@
 *****************************************
 DCC: detect circRNAs from chimeric reads
 *****************************************
+
+**NOTICE**: Bedtools version 2.25 has bug cause DCC fail at a step involve function groupby. I'm working on removing the dependence on Bedtools, by now the solution is as follows:
+
+- Install Bedtools version 2.24.
+- Make sure version 2.24 is the default bedtools version in your environment before running DCC.
+
 DCC is a python package intended to detect and quantify circRNAs with high specificity. DCC works with the STAR (Dobin et al., 2013) chimeric.out.junction 
 files which contains chimerically aligned reads including circRNA junction spanning reads. 
 
