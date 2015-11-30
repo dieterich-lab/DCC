@@ -98,7 +98,7 @@ In this tutorial, we use Westholm et al. 2014 data as an example. The data are p
 
 2. Detect circRNAs from chimeric.out.junction files with DCC
 
-- It is strongly recommended to specify a repetitive region file in GTF format for filtering. You can obtain this file through UCSC table browser: http://genome.ucsc.edu/cgi-bin/hgTables. Select your genome, select group as "Repeats" or "Variation and Repeats". For the track, I recommend choose RepeatMasker and Simple Repeats and combine the results. **NOTE**: the output file needs to comply with **GTF** format specification.
+- It is strongly recommended to specify a repetitive region file in GTF format for filtering. You can obtain this file through UCSC table browser: http://genome.ucsc.edu/cgi-bin/hgTables. Select your genome, select group as "Repeats" or "Variation and Repeats". For the track, I recommend choose RepeatMasker and Simple Repeats and combine the results. **NOTE**: the output file needs to comply with **GTF** format specification. Also note the name of chromosomes from different databases differs, e.g. "1" for chromosome 1 from ensembl, whereas "chr1" for chromosome 1 from UCSC. You need to have the same chromosome names for your gtf annotation file and repeats file. An example to convert UCSC chromosome to ensembl would be sed -i 's/^chr//g' your_repeatfile.gtf.
 
 - Prepare path files to specify where is your chimeric.junction.out files are. 
 
