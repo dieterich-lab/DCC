@@ -6,7 +6,7 @@
 # filenames. The files should all have the same number of rows
 
 import sys
-import pybedtools
+#import pybedtools
 import re
 import os
 # import pdb
