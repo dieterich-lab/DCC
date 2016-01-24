@@ -1,6 +1,12 @@
 *****************************************
 DCC: detect circRNAs from chimeric reads
 *****************************************
+
+**NOTICE**: Bedtools version 2.25 has bug cause DCC fail at a step involve function groupby. I'm working on removing the dependence on Bedtools, by now the solution is as follows:
+
+- Install Bedtools version 2.24.
+- Make sure version 2.24 is the default bedtools version in your environment before running DCC.
+
 DCC is a python package intended to detect and quantify circRNAs with high specificity. DCC works with the STAR (Dobin et al., 2013) chimeric.out.junction 
 files which contains chimerically aligned reads including circRNA junction spanning reads. 
 
@@ -92,7 +98,7 @@ In this tutorial, we use Westholm et al. 2014 data as an example. The data are p
 
 2. Detect circRNAs from chimeric.out.junction files with DCC
 
-- It is strongly recommended to specify a repetitive region file in GTF format for filtering. You can obtain this file through UCSC table browser: http://genome.ucsc.edu/cgi-bin/hgTables. Select your genome, select group as "Repeats" or "Variation and Repeats". For the track, I recommend chose all possible repeats and combine the results. **NOTE**: the output file needs to comply with GTF format specification.
+- It is strongly recommended to specify a repetitive region file in GTF format for filtering. You can obtain this file through UCSC table browser: http://genome.ucsc.edu/cgi-bin/hgTables. Select your genome, select group as "Repeats" or "Variation and Repeats". For the track, I recommend choose RepeatMasker and Simple Repeats and combine the results. **NOTE**: the output file needs to comply with **GTF** format specification. Also note the name of chromosomes from different databases differs, e.g. "1" for chromosome 1 from ensembl, whereas "chr1" for chromosome 1 from UCSC. You need to have the same chromosome names for your gtf annotation file and repeats file. An example to convert UCSC chromosome to ensembl would be sed -i 's/^chr//g' your_repeatfile.gtf.
 
 - Prepare path files to specify where is your chimeric.junction.out files are. 
 
