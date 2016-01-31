@@ -20,7 +20,7 @@ def main():
     parser = argparse.ArgumentParser(prog='DCC',formatter_class=argparse.RawDescriptionHelpFormatter, fromfile_prefix_chars='@', description='Contact jun.cheng@age.mpg.de')
     
     
-    parser.add_argument('--version', action='version', version='%(prog)s 0.3.3')
+    parser.add_argument('--version', action='version', version='%(prog)s 0.3.2')
     parser.add_argument("Input", metavar='Input', nargs="+",
                     help="Input of the chimeric.out.junction file from STAR. Alternatively, a sample sheet specifying where your chimeric.out.junction files are, each sample per line, provide with @ prefix (e.g. @samplesheet).")
     #parser.add_argument("-O", "--output", dest="output", 
@@ -64,9 +64,10 @@ def main():
     #                  help="Provide a coustom junction file in gtf format, if only specify as True, only GT/AG or CT/AC junction will be considered.")
     group.add_argument("-R", "--rep_file", dest="rep_file",
                     help="Coustom repetitive region file in GTF format, to filter out circRNAs candidates in repetitive regions.") 
-    group.add_argument("-L", "--Ln", dest="length", type=int, default=20,
+    group.add_argument("-L", "--Ln", dest="length", type=int, default=50,
                     help="Minimum length to check for repetitive regions. [default 50]")                                                      
-    group.add_argument('-Nr', nargs=2, type=int, metavar=('countthreshold','replicatethreshold'), default=[2,5], help='countthreshold replicatethreshold')
+    group.add_argument('-Nr', nargs=2, type=int, metavar=('level1','threshold1'), default=[2,5], help='Minimum read counts required for circRNAs; \
+                        Minimum number of samples above the corresponding expression level')
     group.add_argument("-fg", "--filterbygene", action='store_true', dest="filterbygene", default=False,
                     help="If specified, filter by gene annotation. candidates are not allowed to span more than one gene.")                                        
     parser.add_argument_group(group)
@@ -197,6 +198,15 @@ def main():
                     wrapfindcirc(files,circfilename,strand=False,pairdendindependent=True)
                 else:
                     wrapfindcirc(files,circfilename,strand=False,pairdendindependent=False)
+        #        
+        #try:
+        #    os.remove('_tmp_DCC/tmp_findcirc')
+        #    os.remove('_tmp_DCC/tmp_printcirclines')
+        #    os.remove('_tmp_DCC/tmp_duplicates')
+        #    os.remove('_tmp_DCC/tmp_nonduplicates')
+        #    os.remove('_tmp_DCC/tmp_smallcircs')
+        #except OSError:
+        #    pass
             
             
         ### Combine the individual count files
@@ -230,8 +240,8 @@ def main():
             if options.annotate:
                 logging.info('Write in annotation.')
                 logging.info('Select gene features in Annotation file.')
-                annotation_tree = circAnn.selectGeneGtf(options.annotate)
-                circAnn.annotate('_tmp_DCC/tmp_coordinates',annotation_tree,'_tmp_DCC/tmp_coordinatesannotated')
+                circAnn.selectGeneGtf(options.annotate)
+                circAnn.annotate('_tmp_DCC/tmp_coordinates','_tmp_DCC/tmp_'+getfilename(options.annotate)+'.gene','_tmp_DCC/tmp_coordinatesannotated')
                 os.remove('_tmp_DCC/tmp_coordinates')
                 os.rename('_tmp_DCC/tmp_coordinatesannotated','_tmp_DCC/tmp_coordinates')
         else:
@@ -239,9 +249,9 @@ def main():
             if options.annotate:
                 logging.info('Write in annotation.')
                 logging.info('Select gene features in Annotation file.')
-                annotation_tree = circAnn.selectGeneGtf(options.annotate)
-                circAnn.annotate('_tmp_DCC/tmp_coordinates',annotation_tree,'_tmp_DCC/tmp_coordinatesannotated')
-                circAnn.annotateregions('_tmp_DCC/tmp_coordinatesannotated',annotation_tree,'CircCoordinates')
+                circAnn.selectGeneGtf(options.annotate)
+                circAnn.annotate('_tmp_DCC/tmp_coordinates','_tmp_DCC/tmp_'+getfilename(options.annotate)+'.gene','CircCoordinates')
+                circAnn.annotateregions('CircCoordinates',options.annotate)
             else:
                 os.rename('_tmp_DCC/tmp_coordinates','CircCoordinates')
         
@@ -250,7 +260,7 @@ def main():
         logging.info('Program start to do filering')
         
         import circFilter as FT
-        filt = FT.Circfilter(length=options.length,countthreshold=options.Nr[0], replicatethreshold=options.Nr[1])
+        filt = FT.Circfilter(length=options.length,level1=options.Nr[0], threshold1=options.Nr[1])
         
         if not options.detect and len(options.Input) == 2: # Only use the program for filtering, need one coordinates file (bed6), one count file
             try:
