@@ -456,7 +456,8 @@ def findCircSkipJunction(CircCoordinates,gtffile,circfiles,SJ_out_tab,strand=Tru
     CircSkipfiles = []
     CCEM=CircNonCircExon()
     # Modify gtf file
-    CCEM.select_exon(gtffile)
+    if not os.path.isfile('_tmp_DCC/tmp_'+os.path.basename(gtf_file)+'.exon'):
+        CCEM.select_exon(gtffile)
     if CCEM.modifyExon_id('_tmp_DCC/tmp_'+getfilename(gtffile)+'.exon.sorted'):
         # Start and end coordinates
         start2end=CCEM.print_start_end_file(CircCoordinates)

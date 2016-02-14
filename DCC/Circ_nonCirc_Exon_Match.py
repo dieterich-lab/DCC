@@ -5,7 +5,6 @@
 import HTSeq
 import os
 import re
-import pybedtools
 
 class CircNonCircExon(object):
 
@@ -34,19 +33,18 @@ class CircNonCircExon(object):
 
 	def select_exon(self,gtf_file):
 		gtf = HTSeq.GFF_Reader(gtf_file, end_included=True)
-		new_gtf = open('_tmp_DCC/tmp_'+os.path.basename(gtf_file)+'.exon','w')
+		new_gtf = open('_tmp_DCC/tmp_'+os.path.basename(gtf_file)+'.exon.sorted','w')
+		gtf_exon = []
 		for feature in gtf:
 			# Select only exon line
 			if feature.type == 'exon':
-				new_gtf.write(feature.get_gff_line())
+				gtf_exon.append(feature.get_gff_line().split('\t'))
 			else:
 				pass
+		gtf_exon_sorted = sorted(gtf_exon,key=lambda x: (x[0],int(x[3]),int(x[4])))
+		gtf_exon_sorted = ['\t'.join(s) for s in gtf_exon_sorted]
+		new_gtf.writelines(gtf_exon_sorted)
 		new_gtf.close()
-		# Sort
-		a = pybedtools.BedTool('_tmp_DCC/tmp_'+os.path.basename(gtf_file)+'.exon')
-		sortedgtf = a.sort()
-		sortedgtf.moveto('_tmp_DCC/tmp_'+os.path.basename(gtf_file)+'.exon.sorted')
-		os.remove('_tmp_DCC/tmp_'+os.path.basename(gtf_file)+'.exon')
 
 	def modifyExon_id(self, exon_gtf_file):
 		rtrn = True
@@ -122,26 +120,24 @@ class CircNonCircExon(object):
 		return exon_id2custom_exon_id
 
 	def intersectcirc(self, circ_file, modified_gtf_file,strand=True):
-		# imput the result file of print_start_end_file
-		#intersectBed -a start.bed -b Drosophila_melanogaster.BDGP5.75.exon_id.dedup.gtf -wa -wb -loj > tmpintersect.2
-		circ = pybedtools.BedTool(circ_file)
-		gtf = pybedtools.BedTool(modified_gtf_file)
-		if strand:
-			intersectfile = circ.intersect(gtf,wa=True,wb=True,loj=True,s=True,nonamecheck=True)
-		else:
-			intersectfile = circ.intersect(gtf,wa=True,wb=True,loj=True,nonamecheck=True)
-		# Store circExons as: circle start or end intervals as key, custom_exon_id as value
+		# input the result file of print_start_end_file
+		circ = open(circ_file).readlines()
+		exon_gtf_file = HTSeq.GFF_Reader(modified_gtf_file, end_included=True)
+		annotation_tree_modified_exon = IntervalTree()
+		for feature in exon_gtf_file:
+			row = feature.attr
+			iv = feature.iv
+			annotation_tree_modified_exon.insert(iv, annotation=row)
+
 		circExons = {}
-		for lin in intersectfile:
-			lin_split = str(lin).split('\t')
-			if lin_split[14].strip('\n') == '.':
-				#lin_split[11] = ''
-				pass
-			else:
-				circExons.setdefault( HTSeq.GenomicInterval(lin_split[0],int(lin_split[1]),int(lin_split[2]),lin_split[5]), set() ).add( HTSeq.parse_GFF_attribute_string(lin_split[14])['custom_exon_id'] )
-			#circExons.setdefault( HTSeq.GenomicInterval(lin_split[0],int(lin_split[1]),int(lin_split[2]),lin_split[9]), [] ).append( { HTSeq.GenomicInterval(lin_split[3],int(lin_split[6]),int(lin_split[7]),lin_split[9]):HTSeq.parse_GFF_attribute_string(lin_split[11]) })
+		for line in circ:
+			line_split = line.split('\t')
+			iv = HTSeq.GenomicInterval(line_split[0],int(line_split[1]),int(line_split[2]),line_split[5])
+			custom_exon_id = annotation_tree_modified_exon.intersect(iv,lambda x: x.annotation['custom_exon_id'])
+			if custom_exon_id:
+				circExons.setdefault( iv, set() ).add(custom_exon_id)
 		return circExons
-		#intersectfile.moveto('intersectfile')
+
 
 	def printuniq(self, Infile):
 		f = open(Infile,'r').readlines()
@@ -374,22 +370,20 @@ class CircNonCircExon(object):
 		return circCount
 
 	def printCirc_Skip_Count(self,circCount,skipJctCount,prefix):
-		Circ_Skip_Count = open(prefix+'CircSkipJunction','w')
-		# if len(skipJctCount) == 0:
-		# 	Circ_Skip_Count.write('chrNone'+'\t'+'1'+'\t'+'2'+'\t'+'.'+'\t'+'.'+'\t'+'.'+'\n')
-		# else:
+		Circ_Skip_Count = []
 		for key in skipJctCount:
 			try:
-				# count = skipJctCount[key] + '\t' + circCount[key]
 				count = skipJctCount[key]
-				Circ_Skip_Count.write(key.chrom + '\t' + str(key.start) + '\t' + str(key.end) + '\t' + count + '\t' + circCount[key] + '\t' + key.strand+'\n')
+				Circ_Skip_Count.append([key.chrom, str(key.start), str(key.end), count, circCount[key], key.strand])
 			except KeyError:
-				Circ_Skip_Count.write(key.chrom + '\t' + str(key.start) + '\t' + str(key.end) + '\t' + count + '\t' + '0' + '\t' + key.strand+'\n')
+				Circ_Skip_Count.append(key.chrom, str(key.start), str(key.end), count, '0', key.strand)
 				#pass
-		Circ_Skip_Count.close()
-		# sortBed
-		a = pybedtools.BedTool(prefix+'CircSkipJunction')
-		b = a.sort()
-		b.moveto(prefix+'CircSkipJunction')
+		
+		# sort
+		Circ_Skip_Count = sorted(Circ_Skip_Count,key=lambda x: (x[0],int(x[1]),int(x[2])))
+
+		Circ_Skip_Count_file = open(prefix+'CircSkipJunction','w')
+		Circ_Skip_Count_file.writelines(Circ_Skip_Count)
+		Circ_Skip_Count_file.close()
 		return prefix+'CircSkipJunction'
 		

@@ -11,18 +11,31 @@ class CircAnnotate(object):
         self.strand = strand
         
     def selectGeneGtf(self,gtf_file):
-        # select gene features for gtf or gff annotation file
+        # construct annotation tree
+        # new_gtf file contains only exon annotation
         gtf = HTSeq.GFF_Reader(gtf_file, end_included=True)
         annotation_tree = IntervalTree()
+        gtf_exon = []
         for feature in gtf:
             # Select only exon line
+            if feature.type == 'exon':
+                gtf_exon.append(feature.get_gff_line().split('\t'))
+
             iv = feature.iv
             try:
                 row = feature.attr
                 row['type'] = feature.type
             except:
                 row = feature.get_gff_line()
+
             annotation_tree.insert(iv, annotation=row)
+
+        gtf_exon_sorted = sorted(gtf_exon,key=lambda x: (x[0],int(x[3]),int(x[4])))
+        gtf_exon_sorted = ['\t'.join(s) for s in gtf_exon_sorted]
+        new_gtf = open('_tmp_DCC/tmp_'+os.path.basename(gtf_file)+'.exon.sorted','w')
+        new_gtf.writelines(gtf_exon_sorted)
+        new_gtf.close()
+
         return annotation_tree
 
     def annotate_one_interval(self,interval,annotation_tree,what='gene'):
