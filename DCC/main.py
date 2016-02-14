@@ -284,14 +284,14 @@ def main():
         filt.filter_nonrep(rep_file, indx0, count0)
 
         if not options.chrM and not options.filterbygene:
-            filt.sortOutput('_tmp_DCC/tmp_unsortedWithChrM','CircRNACount',samplelist,'CircCoordinates',split=True)
+            filt.sortOutput('_tmp_DCC/tmp_unsortedWithChrM','CircRNACount','CircCoordinates',samplelist)
             
         # Filter chrM, if no further filtering, return 'CircRNACount' and 'CircCoordinates', else return '_tmp_DCC/tmp_unsortedNoChrM'
         if options.chrM:
             logging.info('Deleting circRNA candidates from Mitochondria chromosome.')
             filt.removeChrM('_tmp_DCC/tmp_unsortedWithChrM')
             if not options.filterbygene:
-                filt.sortOutput('_tmp_DCC/tmp_unsortedNoChrM','CircRNACount',samplelist,'CircCoordinates',split=True)
+                filt.sortOutput('_tmp_DCC/tmp_unsortedNoChrM','CircRNACount','CircCoordinates',samplelist)
         else:
             os.rename('_tmp_DCC/tmp_unsortedWithChrM','_tmp_DCC/tmp_unsortedNoChrM') # Note in this case '_tmp_DCC/tmp_unsortedNoChrM' actually has chrM
         
@@ -300,10 +300,10 @@ def main():
             if options.annotate:
                 logging.info('Filter by gene annotation. CircRNA candidates from more than one genes are deleted.')
                 circAnn.filtbygene('_tmp_DCC/tmp_unsortedNoChrM','_tmp_DCC/tmp_unsortedfilterbygene')
-                filt.sortOutput('_tmp_DCC/tmp_unsortedfilterbygene','CircRNACount',samplelist,'CircCoordinates',split=True)
+                filt.sortOutput('_tmp_DCC/tmp_unsortedfilterbygene','CircRNACount','CircCoordinates',samplelist)
             else:
                 logging.warning('To filter by gene annotation, a annotation file in GTF/GFF format needed, skiped filter by gene annotation.')
-                filt.sortOutput('_tmp_DCC/tmp_unsortedNoChrM','CircRNACount',samplelist,'CircCoordinates',split=True)
+                filt.sortOutput('_tmp_DCC/tmp_unsortedNoChrM','CircRNACount','CircCoordinates',samplelist)
         
         # Add annotation of regions
         if options.annotate:

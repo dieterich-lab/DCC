@@ -2,7 +2,6 @@
 
 import re
 import collections
-import pdb
 
 class Findcirc(object):
     # Initialize some parameters
@@ -221,7 +220,6 @@ class Sort(object):
         # Equal to sort command in linux
         # file_list is the object of file read by readlines()
         file_list=open(findcircOut,'r').readlines()
-        #print 'debugging'
         output = open(output,'w')
         tmp_sort = []
         for itm in file_list:
@@ -231,5 +229,3 @@ class Sort(object):
         sorted_count = self.count(tmp_sorted,strand=strand)
         output.writelines( '\t'.join(j) + '\n' for j in sorted_count )
         output.close()
-
-

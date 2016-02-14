@@ -3,7 +3,6 @@ import pybedtools
 import os
 import sys
 from IntervalTree import IntervalTree
-import pdb
 import HTSeq
 
 ##########################
@@ -109,58 +108,7 @@ class Circfilter(object):
         # write the result
         np.savetxt('_tmp_DCC/tmp_unsortedWithChrM',nonrep,delimiter='\t',newline='\n',fmt='%s')
 
-
-
-    ## Further filtering with non repetitive region
-    def makeregion(self,indx0):
-        # tmp_left would be with five fields, chr start start+length end junctiontype
-        tmp_left = np.concatenate((np.concatenate((indx0[0:,[0,1]], indx0[0:,[1]].astype(np.int32,copy=False) + self.length),axis=1), indx0[0:,[2,3,4,5]]), axis=1)
-        if len(tmp_left) == 0:
-            sys.exit('No circRNA passed the non repetitive filtering one the start site.')
-        # tmp_right would be with five fields, chr end-lenth end start junctiontype
-        tmp_right = np.concatenate((np.concatenate((indx0[0:,[0]], indx0[0:,[2]].astype(np.int32,copy=False) - self.length),axis=1), indx0[0:,[2,1,3,4,5]]), axis=1)
-        if len(tmp_right) == 0:
-            sys.exit('No circRNA passed the non repetitive filtering one the end site.')
-        np.savetxt('_tmp_DCC/tmp_left', tmp_left, delimiter='\t', newline='\n', fmt='%s')
-        np.savetxt('_tmp_DCC/tmp_right', tmp_right, delimiter='\t', newline='\n', fmt='%s')
-        #return tmp_left, tmp_right
-        
-    def nonrep_filter(self,tmp_left,tmp_right,regionfile):
-        print 'Filtering by non repetitive region'
-        left = pybedtools.BedTool(tmp_left)
-        right = pybedtools.BedTool(tmp_right)
-        region = pybedtools.BedTool(regionfile)
-        nonrep_left=left.intersect(region,v=True,sorted=False)
-        nonrep_right=right.intersect(region,v=True,sorted=False)
-        return nonrep_left,nonrep_right
-        
-    ### intersectLeftandRightRegions
-    # Integrate the removed repetitive region left and right resulted from bedtools
-    def intersectLeftandRightRegions(self,nonrep_left,nonrep_right,indx0,count0):
-        # Store the circRNA candidates passed the left nonrepetitive region test to a set with turples
-        left_passed=[]
-        for itm in nonrep_left:
-            tmp_line=str(itm).split('\t')
-            left_passed.append([tmp_line[0],tmp_line[1],tmp_line[3],tmp_line[4],tmp_line[5],tmp_line[6].strip()])
-            #print ('\t').join((tmp_line[0],tmp_line[1],tmp_line[1]))
-        
-        # loop through the circRNAs passed the right nonrepetitive region test, if it also passed left test, record 
-        # to the final passed test result
-        count=0 
-        for itm in nonrep_right:
-            tmp_line=str(itm).split('\t')
-            if [tmp_line[0],tmp_line[3],tmp_line[2],tmp_line[4],tmp_line[5],tmp_line[6].strip()] in left_passed:
-                # find the index of this circRNA in both indx0 and count0
-                position=indx0.tolist().index([tmp_line[0],tmp_line[3],tmp_line[2],tmp_line[4],tmp_line[5],tmp_line[6].strip()])
-                if count==0:
-                    nonrep = np.concatenate((indx0[position],count0[position]),axis=1)
-                    count += 1
-                else:
-                    nonrep = np.vstack((np.concatenate((indx0[position],count0[position]),axis=1),nonrep)) # Store the filtered circRNA position information plus count information to a array
-        # write the result
-        np.savetxt('_tmp_DCC/tmp_unsortedWithChrM',nonrep,delimiter='\t',newline='\n',fmt='%s')
-        ### This function return with a concatenated file 'tmp_unsortedWithChrM' containing both coordinates and counts  ###
-    
+   
     def removeChrM(self, withChrM):
         print 'Remove ChrM'
         unremoved = open(withChrM, 'r').readlines()
@@ -172,26 +120,19 @@ class Circfilter(object):
         removedfile.writelines(removed)
         removedfile.close()
         
-    def sortOutput(self,unsorted,outCount,samplelist=None,outCoordinates=None,split=False):
+    def sortOutput(unsorted,outCount,outCoordinates,samplelist=None):
         #Sample list is a string with sample names seperated by \t.
         # Split used to split if coordinates information and count information are integrated
-        print 'Sorting the filtered output'
-        tmp = pybedtools.BedTool(unsorted)
         count = open(outCount,'w')
+        coor = open(outCoordinates,'w')
         if samplelist:
             count.write('Chr\tStart\tEnd\t'+samplelist+'\n')
-        #sortedtmp = open('tmpSorted','wr')
-        #sortedtmp.write(str(tmp.sort()))
-        tmpsorted = str(tmp.sort())
-        if split and outCoordinates:
-            coor = open(outCoordinates,'w')
-            lines = filter(bool, tmpsorted.split('\n'))
-            for line in lines:
-                linesplit = [x.strip() for x in line.split('\t')]
-                #count.write('\t'.join(linesplit[0:3]+list(linesplit[4])+list(linesplit[6:]))+'\n')
-                count.write('\t'.join(linesplit[0:3]+list(linesplit[6:]))+'\n')
-                coor.write('\t'.join(linesplit[0:6])+'\n')
-            coor.close()
+        lines = open(unsorted).readlines()
+        for line in lines:
+            linesplit = [x.strip() for x in line.split('\t')]
+            count.write('\t'.join(linesplit[0:3]+list(linesplit[6:]))+'\n')
+            coor.write('\t'.join(linesplit[0:6])+'\n')
+        coor.close()
         count.close()
         
     def remove_tmp(self):
