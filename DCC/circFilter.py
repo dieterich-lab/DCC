@@ -120,7 +120,7 @@ class Circfilter(object):
         removedfile.writelines(removed)
         removedfile.close()
         
-    def sortOutput(unsorted,outCount,outCoordinates,samplelist=None):
+    def sortOutput(self,unsorted,outCount,outCoordinates,samplelist=None):
         #Sample list is a string with sample names seperated by \t.
         # Split used to split if coordinates information and count information are integrated
         count = open(outCount,'w')
