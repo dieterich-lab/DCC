@@ -5,6 +5,7 @@
 import HTSeq
 import os
 import re
+from IntervalTree import IntervalTree
 
 class CircNonCircExon(object):
 
@@ -132,7 +133,7 @@ class CircNonCircExon(object):
 		circExons = {}
 		for line in circ:
 			line_split = line.split('\t')
-			iv = HTSeq.GenomicInterval(line_split[0],int(line_split[1]),int(line_split[2]),line_split[5])
+			iv = HTSeq.GenomicInterval(line_split[0],int(line_split[1]),int(line_split[2]),line_split[5].strip())
 			custom_exon_id = annotation_tree_modified_exon.intersect(iv,lambda x: x.annotation['custom_exon_id'])
 			if custom_exon_id:
 				circExons.setdefault( iv, set() ).add(custom_exon_id)
