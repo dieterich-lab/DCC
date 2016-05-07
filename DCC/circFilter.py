@@ -2,6 +2,7 @@ import numpy as np
 import pybedtools 
 import os
 import sys
+import pdb
 
 ##########################
 #  Input of this script  #
@@ -100,6 +101,7 @@ class Circfilter(object):
     ### intersectLeftandRightRegions
     # Integrate the removed repetitive region left and right resulted from bedtools
     def intersectLeftandRightRegions(self,nonrep_left,nonrep_right,indx0,count0):
+        #pdb.set_trace()
         # Store the circRNA candidates passed the left nonrepetitive region test to a set with turples
         left_passed=[]
         for itm in nonrep_left:
@@ -116,12 +118,15 @@ class Circfilter(object):
                 # find the index of this circRNA in both indx0 and count0
                 position=indx0.tolist().index([tmp_line[0],tmp_line[3],tmp_line[2],tmp_line[4],tmp_line[5],tmp_line[6].strip()])
                 if count==0:
-                    nonrep = np.concatenate((indx0[position],count0[position]),axis=1)
+                    nonrep = np.concatenate((indx0[position],count0[position]))
                     count += 1
                 else:
-                    nonrep = np.vstack((np.concatenate((indx0[position],count0[position]),axis=1),nonrep)) # Store the filtered circRNA position information plus count information to a array
+                    nonrep = np.vstack((np.concatenate((indx0[position],count0[position])),nonrep)) # Store the filtered circRNA position information plus count information to a array
         # write the result
-        np.savetxt('_tmp_DCC/tmp_unsortedWithChrM',nonrep,delimiter='\t',newline='\n',fmt='%s')
+        if count==1:
+            np.savetxt('_tmp_DCC/tmp_unsortedWithChrM',nonrep,newline='\t',fmt='%s')
+        else:   
+            np.savetxt('_tmp_DCC/tmp_unsortedWithChrM',nonrep,delimiter='\t',fmt='%s')
         ### This function return with a concatenated file 'tmp_unsortedWithChrM' containing both coordinates and counts  ###
     
     def removeChrM(self, withChrM):
