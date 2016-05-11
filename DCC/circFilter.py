@@ -121,6 +121,7 @@ class Circfilter(object):
                     nonrep = np.concatenate((indx0[position],count0[position]))
                     count += 1
                 else:
+                    count = 2
                     nonrep = np.vstack((np.concatenate((indx0[position],count0[position])),nonrep)) # Store the filtered circRNA position information plus count information to a array
         # write the result
         if count==1:
