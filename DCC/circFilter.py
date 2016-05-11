@@ -126,7 +126,7 @@ class Circfilter(object):
         if count==1:
             np.savetxt('_tmp_DCC/tmp_unsortedWithChrM',nonrep,newline='\t',fmt='%s')
         else:   
-            np.savetxt('_tmp_DCC/tmp_unsortedWithChrM',nonrep,delimiter='\t',fmt='%s')
+            np.savetxt('_tmp_DCC/tmp_unsortedWithChrM',nonrep,delimiter='\t',newline='\n',fmt='%s')
         ### This function return with a concatenated file 'tmp_unsortedWithChrM' containing both coordinates and counts  ###
     
     def removeChrM(self, withChrM):
