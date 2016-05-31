@@ -20,46 +20,69 @@ class Genecount(object):
     #    @ref: quoted string
     #    @output: quoted string
     #    """
-    #    
+    #
     #    self.circ_coor = circ_coor
     #    self.bamfile = bamfile
     #    self.ref = ref
     #    self.output = output
     #    self.comb_gen_count(self.circ_coor, self.bamfile, self.ref, self.output)
-        
+
 
     def countmapped(self, string):
         # This function takes the 5th column (a string with mapping information),
         # and return the count of '.' and ','. Which are mapped read count
-        
+
         rs = string.count(',') + string.count('.')
-        
+
         return str(rs)
-    
+
     def countspliced(self,string):
         # return the count of '>' and '<'
         rs = string.count('>') + string.count('<')
         return str(rs)
-    
+
     def getreadscount(self, mpileup, countmapped=False):
         # Input a mpileup result, which is a list
         # The count information is in the 5th column
         # count the number of mapped reads represented by ',' and '.' or, spliced reads represented by the number of '>' and '<' in the string
         count = []
-        
-        print "length mpileup: %d" % (len(mpileup))
-        
-        for itm in mpileup:
+
+        mpileupLine = mpileup.split('\n')
+
+        #print "mpileup: %s" % (mpileup)
+        #print "length mpileup: %d" % (len(mpileup))
+        #print "mpileupLine string: %s" % (mpileupLine)
+        #print 'mpileup: %s' % '|'.join(map(str, mpileup))
+        #print 'test: %s' % '|'.join(map(str, mpileupLine))
+
+        for itm in mpileupLine:
             tmp = itm.split('\t')
-            if countmapped:
-                count.append(tmp[0]+'\t'+tmp[1]+'\t'+self.countmapped(tmp[4]))
+            #print "itm complete: %s" % (itm)
+	    #print 'itm list [%s]' % '|'.join(map(str, itm))
+            #print "tmp native: %s" % (itm)
+            #print 'tmp list [%s]' % '\t'.join(map(str, tmp))
+
+            #print "itm: %s" % (itm)
+	    #print "length tmp: %d" % (len(tmp))
+            #print 'tmp [%s]' % ', '.join(map(str, tmp))
+            #print "tmp 1: %s" % (tmp[1])
+            #print "tmp comb: %s" % (tmp[0]+'\t'+tmp[1]+'\t'+str(0))
+
+	    if countmapped:
+		if len(tmp) == 6:
+               		count.append(tmp[0]+'\t'+tmp[1]+'\t'+self.countmapped(tmp[4]))
+	#	else:
+	#		count.append(tmp[0]+'\t'+tmp[1]+'\t'+str(0))
             else:
-                count.append(tmp[0]+'\t'+tmp[1]+'\t'+self.countspliced(tmp[4]))
-        
+		if len(tmp) == 6:
+                	count.append(tmp[0]+'\t'+tmp[1]+'\t'+self.countspliced(tmp[4]))
+	#	else:
+	#		count.append(tmp[0]+'\t'+tmp[1]+'\t'+str(0))
+
         #print count
         return count
-            
-        
+
+
     def genecount(self, circ_coor, bamfile, ref):
         """
         @circ_coor: quoted string, content with format "chr1\tstart\tend"
