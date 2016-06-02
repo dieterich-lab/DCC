@@ -73,25 +73,30 @@ class Fix2Chimera(object):
         self.concatenatefiles(output_file, '_tmp_DCC/tmp_twochimera', joined)
 
     def printduplicates(self, infile, dupfile, field=10):
-        inputfile = open(infile, 'r')
-        dup = open(dupfile, 'w')
-        seen = dict()
-        # check read name suffice
-        suffice = False
-        if len(inputfile.readline().split('\t')[field - 1].split('.')[-1]) == 1:
-            suffice = True
-        for line in inputfile:
-            line_split = line.split('\t')
-            if suffice:
-                key = line_split[field - 1][:-2]
-            else:
-                key = line_split[field - 1]
-            if key in seen:
-                if not seen[key][0]:
-                    dup.write(seen[key][1])
-                    seen[key] = (True, seen[key][1])
-                dup.write(line)
-            else:
-                seen[key] = (False, line)
-        inputfile.close()
-        dup.close()
+        inputfile = None
+        dup = None
+
+        try:
+            inputfile = open(infile, 'r')
+            dup = open(dupfile, 'w')
+            seen = dict()
+            # check read name suffice
+            suffice = False
+            if len(inputfile.readline().split('\t')[field - 1].split('.')[-1]) == 1:
+                suffice = True
+            for line in inputfile:
+                line_split = line.split('\t')
+                if suffice:
+                    key = line_split[field - 1][:-2]
+                else:
+                    key = line_split[field - 1]
+                if key in seen:
+                    if not seen[key][0]:
+                        dup.write(seen[key][1])
+                        seen[key] = (True, seen[key][1])
+                    dup.write(line)
+                else:
+                    seen[key] = (False, line)
+        finally:
+            inputfile.close()
+            dup.close()
