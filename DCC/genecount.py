@@ -45,10 +45,6 @@ class Genecount(object):
         # Input a mpileup result, which is a list
         # The count information is in the 5th column
         # count the number of mapped reads represented by ',' and '.' or, spliced reads represented by the number of '>' and '<' in the string
-        """
-
-        :type countmapped: object
-        """
         count = []
 
         mpileupline = mpileup.split('\n')
@@ -71,7 +67,6 @@ class Genecount(object):
 
             return count
 
-
     def genecount(self, circ_coor, bamfile, ref):
         """
         @circ_coor: quoted string, content with format "chr1\tstart\tend"
@@ -93,7 +88,7 @@ class Genecount(object):
         start_coor.close()
         end_coor.close()
 
-        print 'Started linear gene expression counting %s' % bamfile
+        print 'Started linear gene expression counting for %s' % bamfile
 
         # mpileup get the read counts of the start and end positions
         mpileup_start = pysam.mpileup(bamfile,'-f',ref,'-l','start_coor') # A list object
