@@ -83,7 +83,7 @@ class Combine(object):
     #         mapped.moveto(files+'mapped')
 
     def deletfile(self, dirt, pattern):
-        # First check wheter the input is a list of files or a regular expression string
+        # First check whether the input is a list of files or a regular expression string
         if isinstance(pattern,str):        
             # A list to store names of deleted files
             deleted = []
