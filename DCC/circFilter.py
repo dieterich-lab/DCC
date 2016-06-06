@@ -3,6 +3,7 @@ import os
 import sys
 from IntervalTree import IntervalTree
 import HTSeq
+import pdb
 
 ##########################
 #  Input of this script  #
@@ -74,7 +75,6 @@ class Circfilter(object):
         if len(sel) == 0:
             sys.exit("No circRNA passed the expression threshold filtering.")
         return count[[sel]],indx[[sel]]
-    
 
     def read_rep_region(self,regionfile):
         regions = HTSeq.GFF_Reader(regionfile, end_included=True)
@@ -107,7 +107,7 @@ class Circfilter(object):
         # write the result
         np.savetxt('_tmp_DCC/tmp_unsortedWithChrM',nonrep,delimiter='\t',newline='\n',fmt='%s')
 
-   
+
     def removeChrM(self, withChrM):
         print 'Remove ChrM'
         unremoved = open(withChrM, 'r').readlines()
@@ -143,4 +143,3 @@ class Circfilter(object):
             #os.remove('tmpSorted')
         except OSError:
             pass
-    

@@ -32,9 +32,9 @@ class Combine(object):
                 else:
                     coorsDict[tmp[0]+'\t'+tmp[1]+'\t'+tmp[2]+'\t'+'.'+'\t'] = tmp[6]+'\t'+tmp[5]+'\n'
             onefile.close()
-        
+
         if strand:
-            coors = ['\t'.join(key.split('\t')[:-1])+value for key,value in coorsDict.iteritems()]
+            coors = ['\t'.join(key.split('\t')[:-1]) + value for key, value in coorsDict.iteritems()]
         else:
             coors = ['{}{}'.format(key,value) for key,value in coorsDict.iteritems()]
 
@@ -83,7 +83,7 @@ class Combine(object):
     #         mapped.moveto(files+'mapped')
 
     def deletfile(self, dirt, pattern):
-        # First check wheter the input is a list of files or a regular expression string
+        # First check whether the input is a list of files or a regular expression string
         if isinstance(pattern,str):        
             # A list to store names of deleted files
             deleted = []
@@ -102,7 +102,7 @@ class Combine(object):
         # First check whether the input is a list
         if isinstance(bedfile, list) or isinstance(bedfile, tuple) or isinstance(bedfile, set):
             bedfile = list(bedfile)
-            # check dimention
+            # check dimension
             if isinstance(bedfile[0],list):
                 # Sort
                 bedfileSorted = sorted(bedfile,key=lambda x: (x[0],int(x[1]),int(x[2]),x[5]))
