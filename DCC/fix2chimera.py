@@ -2,6 +2,10 @@
 
 # If paire end data are used, this module fix the rolling circRNA could not detect by single run problem.
 
+import os
+import logging
+import sys
+
 class Fix2Chimera(object):
     def fixreadname(self, chimeric_junction_file, output_file):
         # Because sometimes, for example -I flag of fastq-dump will add ".1" and ".2" read suffices.
@@ -26,6 +30,10 @@ class Fix2Chimera(object):
 
     def fixmate2(self, chimeric_junction_mate2, output_file):
         # Fix the orientation of mate2
+
+        if not os.path.isfile(chimeric_junction_mate2):
+            sys.exit("ERROR: File " + str(chimeric_junction_mate2) + " is missing!")
+
         chimeric_junction = open(chimeric_junction_mate2, 'r')
 
         def modify_junctiontype(junctiontype):
@@ -57,7 +65,10 @@ class Fix2Chimera(object):
         import shutil
         destination = open(output_file, 'wb')
         for fname in fnames:
-            shutil.copyfileobj(open(fname, 'rb'), destination)
+            if not os.path.isfile(fname):
+                sys.exit("ERROR: File " + str(fname) + " is missing!")
+            else:
+                shutil.copyfileobj(open(fname, 'rb'), destination)
         destination.close()
 
     def fixation(self, mate1, mate2, joined, output_file):
@@ -68,35 +79,45 @@ class Fix2Chimera(object):
         self.fixmate2(mate2, mate2 + '.fixed')
 
         # Second, merge two mate files, select duplicates
-        self.concatenatefiles('_tmp_DCC/tmp_merged', mate1, mate2 + '.fixed')
-        self.printduplicates('_tmp_DCC/tmp_merged', '_tmp_DCC/tmp_twochimera', field=10)
+        self.concatenatefiles('_tmp_DCC/tmp_merged', mate1, mate2 + '.fixed')  # does not care if files are empty
+        self.printduplicates('_tmp_DCC/tmp_merged', '_tmp_DCC/tmp_twochimera', field=10)  # TODO: field is static?
+
+        if not os.path.isfile('_tmp_DCC/tmp_twochimera'):
+            sys.exit("PE-independent mode selected but all corresponding junctions files are empty!")
+
         self.concatenatefiles(output_file, '_tmp_DCC/tmp_twochimera', joined)
 
-    def printduplicates(self, infile, dupfile, field=10):
+    def printduplicates(self, merged, duplicates, field=10):
         inputfile = None
         dup = None
 
-        try:
-            inputfile = open(infile, 'r')
-            dup = open(dupfile, 'w')
-            seen = dict()
-            # check read name suffice
-            suffice = False
-            if len(inputfile.readline().split('\t')[field - 1].split('.')[-1]) == 1:
-                suffice = True
-            for line in inputfile:
-                line_split = line.split('\t')
-                if suffice:
-                    key = line_split[field - 1][:-2]
-                else:
-                    key = line_split[field - 1]
-                if key in seen:
-                    if not seen[key][0]:
-                        dup.write(seen[key][1])
-                        seen[key] = (True, seen[key][1])
-                    dup.write(line)
-                else:
-                    seen[key] = (False, line)
-        finally:
-            inputfile.close()
-            dup.close()
+        if not os.path.isfile(merged):
+            sys.exit("ERROR: File " + str(merged) + " is missing!")
+        elif os.stat(merged).st_size == 0:
+            print ("WARNING: File " + str(merged) + " is empty!")
+            #open(duplicates, 'a').close()
+        else:
+            try:
+                inputfile = open(merged, 'r')
+                dup = open(duplicates, 'w')
+                seen = dict()
+                # check read name suffice
+                suffice = False
+                if len(inputfile.readline().split('\t')[field - 1].split('.')[-1]) == 1:
+                    suffice = True
+                for line in inputfile:
+                    line_split = line.split('\t')
+                    if suffice:
+                        key = line_split[field - 1][:-2]
+                    else:
+                        key = line_split[field - 1]
+                    if key in seen:  # has been added to dict
+                        if not seen[key][0]:  # but it has not yet been set to True (already written)
+                            dup.write(seen[key][1])  # write the content of the key
+                            seen[key] = (True, seen[key][1])  # set key to seen and written
+                        dup.write(line)  # write the complete original line to duplicate file
+                    else:
+                        seen[key] = (False, line)  # executed when we see the read name first, sets false in dict
+            finally:
+                inputfile.close()
+                dup.close()
