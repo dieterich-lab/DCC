@@ -9,7 +9,7 @@
 
 import pysam
 import os
-import warnings
+import logging
 import sys
 
 class Genecount(object):
@@ -228,14 +228,14 @@ class Genecount(object):
                 count_start.append(coordinates_start[itm])
             else:
                 count_start.append('0')
-                warnings.warn('WARNING: circRNA start position '+str(itm)+' does not have mapped read counts, treated as 0', stacklevel=3)
+                logging.info('WARNING: circRNA start position '+str(itm)+' does not have mapped read counts, treated as 0')
 
         for itm in coordinates_indx_end:
             if itm in coordinates_end:
                 count_end.append(coordinates_end[itm])
             else:
                 count_end.append('0')
-                warnings.warn('WARNING: circRNA end position '+str(itm)+' does not have mapped read counts, treated as 0', stacklevel=3)
+                logging.info('WARNING: circRNA end position '+str(itm)+' does not have mapped read counts, treated as 0')
 
         # write count table
         count_table = open(output,'w')
@@ -250,6 +250,3 @@ class Genecount(object):
         #tmp_start.close()
         #tmp_end.close()
         count_table.close()
-
-
-#a=Genecount('test2','GSM1328501dedupped.bam','rn6.fa','outfile')
