@@ -7,10 +7,12 @@
 # coor: coordinates
 # rs: result
 
-import pysam
-import os
 import logging
+import os
 import sys
+
+import pysam
+
 
 class Genecount(object):
     #def __init__(self,circ_coor, bamfile, ref, output):
@@ -65,7 +67,7 @@ class Genecount(object):
                 if len(tmp) == 6:
                     count.append(tmp[0]+'\t'+tmp[1]+'\t'+self.countspliced(tmp[4]))
 
-            return count
+        return count
 
     def genecount(self, circ_coor, bamfile, ref):
         """
