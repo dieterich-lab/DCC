@@ -50,7 +50,8 @@ class Genecount(object):
         count = []
 
         mpileupline = mpileup.split('\n')
-
+        print "mpileupline is a " + str(type(mpileupline))
+        print "mpileup is a " + str(type(mpileup))
         #print "mpileup: %s" % (mpileup)
         #print "length mpileup: %d" % (len(mpileup))
         #print "mpileupline string: %s" % (mpileupline)
