@@ -1,9 +1,11 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import findcircRNA as FC
-import CombineCounts as CC
 import argparse
+
+import CombineCounts as CC
+import findcircRNA as FC
+
 #from optparse import OptionParser, OptionGroup
 import os
 import sys
@@ -13,7 +15,7 @@ import circAnnotate
 import time
 #import circFilter
 from fix2chimera import Fix2Chimera
-import pdb
+
 
 def main():
     
@@ -383,7 +385,7 @@ def main():
                 logdeleted(deleted)
 
     # CircSkip junction
-    if options.annotate and not options.circ:
+    if options.annotate and options.detect and not options.circ:
         logging.info('Count CircSkip junctions.')
         print('Count CircSkip junctions.')
         SJ_out_tab = getSJ_out_tab(options.Input)
