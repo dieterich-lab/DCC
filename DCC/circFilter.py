@@ -1,9 +1,11 @@
 import numpy as np
 import os
 import sys
-from IntervalTree import IntervalTree
+
 import HTSeq
-import pdb
+
+from IntervalTree import IntervalTree
+
 
 ##########################
 #  Input of this script  #
@@ -99,7 +101,7 @@ class Circfilter(object):
                 rep_tree.intersect(left, lambda x: out.append(x))
                 rep_tree.intersect(right, lambda x: out.append(x))
                 if not out:
-                    # not in repetitive reagion
+                    # not in repetitive region
                     keep_index.append(i)
             indx0 = indx0[keep_index]
             count0 = count0[keep_index]
@@ -120,7 +122,7 @@ class Circfilter(object):
         removedfile.close()
         
     def sortOutput(self,unsorted,outCount,outCoordinates,samplelist=None):
-        #Sample list is a string with sample names seperated by \t.
+        # Sample list is a string with sample names seperated by \t.
         # Split used to split if coordinates information and count information are integrated
         count = open(outCount,'w')
         coor = open(outCoordinates,'w')
