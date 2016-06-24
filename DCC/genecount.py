@@ -75,13 +75,15 @@ class Genecount(object):
 
         elif type(mpileup) is list:
 
-            # print "mpileup: %s" % (mpileup)
-            # print "length mpileup: %d" % (len(mpileup))
+            print "mpileup: %s" % (mpileup)
+            print "length mpileup: %d" % (len(mpileup))
             # print "mpileupline string: %s" % (mpileupline)
             # print 'mpileup: %s' % '|'.join(map(str, mpileup))
             # print 'test: %s' % '|'.join(map(str, mpileupline))
 
             for itm in mpileup:
+
+                print "itm: %s" % itm
 
                 if countmapped:
                     if len(mpileup) == 6:
