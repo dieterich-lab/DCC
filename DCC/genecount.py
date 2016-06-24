@@ -46,27 +46,49 @@ class Genecount(object):
     def getreadscount(self, mpileup, countmapped=False):
         # Input a mpileup result, which is a list
         # The count information is in the 5th column
-        # count the number of mapped reads represented by ',' and '.' or, spliced reads represented by the number of '>' and '<' in the string
+        # count the number of mapped reads represented by ',' and '.' or, spliced reads
+        # represented by the number of '>' and '<' in the string
+
         count = []
 
-        mpileupline = mpileup.split('\n')
-        print "mpileupline is a " + str(type(mpileupline))
         print "mpileup is a " + str(type(mpileup))
-        #print "mpileup: %s" % (mpileup)
-        #print "length mpileup: %d" % (len(mpileup))
-        #print "mpileupline string: %s" % (mpileupline)
-        #print 'mpileup: %s' % '|'.join(map(str, mpileup))
-        #print 'test: %s' % '|'.join(map(str, mpileupline))
 
-        for itm in mpileupline:
-            tmp = itm.split('\t')
+        if type(mpileup) is str:
 
-            if countmapped:
-                if len(tmp) == 6:
-                    count.append(tmp[0]+'\t'+tmp[1]+'\t'+self.countmapped(tmp[4]))
-            else:
-                if len(tmp) == 6:
-                    count.append(tmp[0]+'\t'+tmp[1]+'\t'+self.countspliced(tmp[4]))
+            mpileupline = mpileup.split('\n')
+
+            # print "mpileup: %s" % (mpileup)
+            # print "length mpileup: %d" % (len(mpileup))
+            # print "mpileupline string: %s" % (mpileupline)
+            # print 'mpileup: %s' % '|'.join(map(str, mpileup))
+            # print 'test: %s' % '|'.join(map(str, mpileupline))
+
+            for itm in mpileupline:
+                tmp = itm.split('\t')
+
+                if countmapped:
+                    if len(tmp) == 6:
+                        count.append(tmp[0] + '\t' + tmp[1] + '\t' + self.countmapped(tmp[4]))
+                else:
+                    if len(tmp) == 6:
+                        count.append(tmp[0] + '\t' + tmp[1] + '\t' + self.countspliced(tmp[4]))
+
+        elif type(mpileup) is list:
+
+            # print "mpileup: %s" % (mpileup)
+            # print "length mpileup: %d" % (len(mpileup))
+            # print "mpileupline string: %s" % (mpileupline)
+            # print 'mpileup: %s' % '|'.join(map(str, mpileup))
+            # print 'test: %s' % '|'.join(map(str, mpileupline))
+
+            for itm in mpileup:
+
+                if countmapped:
+                    if len(mpileup) == 6:
+                        count.append(itm[0] + '\t' + itm[1] + '\t' + self.countmapped(itm[4]))
+                else:
+                    if len(mpileup) == 6:
+                        count.append(itm[0] + '\t' + itm[1] + '\t' + self.countspliced(itm[4]))
 
         return count
 
