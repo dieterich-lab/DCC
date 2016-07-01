@@ -152,9 +152,7 @@ class CircAnnotate(object):
         return ann
         
     def searchGeneName(self,annotations,what='gene'):
-        if annotations == '.':
-            genes = 'N/A'
-        elif what=='gene':
+        if what == 'gene':
             collect = set()
             for annotation in annotations:
                 # Search for gene_name which is used by ensembl gtf annotation
@@ -176,14 +174,14 @@ class CircAnnotate(object):
                             except:
                                 gene = 'N/A'
                 collect.add(gene)
-            # Collapse all genes togethor
+            # Collapse all genes together
             if len(collect) > 1:
                 try:
                     collect.remove('N/A')
                 except KeyError:
                     pass
         else:
-            # annotate reagion
+            # annotate region
             collect = set()
             for annotation in annotations:
                 try:
@@ -198,6 +196,3 @@ class CircAnnotate(object):
             # empty string
             genes = 'not_annotated'
         return genes
-        
-        
-        
