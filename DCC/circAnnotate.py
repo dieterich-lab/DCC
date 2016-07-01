@@ -1,10 +1,13 @@
 # This module annotate the circRNA with gene names, and also filter the circRNA candidates by requiring "CircRNA could not from more than two annotated linear gene."
-import warnings
 import logging
 import os
 import re
+import warnings
+
 import HTSeq
+
 from IntervalTree import IntervalTree
+
 
 class CircAnnotate(object):
     def __init__(self,strand=True):
@@ -193,7 +196,7 @@ class CircAnnotate(object):
         genes = ','.join(collect)
         if not genes:
             # empty string
-            genes = '.'
+            genes = 'not_annotated'
         return genes
         
         
