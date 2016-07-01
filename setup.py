@@ -6,7 +6,7 @@ https://github.com/pypa/sampleproject
 """
 
 # Always prefer setuptools over distutils
-from setuptools import setup, find_packages
+from setuptools import setup
 # To use a consistent encoding
 from codecs import open
 from os import path
@@ -23,7 +23,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.3.3',
+    version='0.4',
 
     description='Detect circRNAs from chimeras',
     long_description=long_description,
@@ -35,6 +35,9 @@ setup(
     author='Jun Cheng',
     author_email='s6juncheng@gmail.com',
 
+    maintainer='Tobias Jakobi',
+    maintainer_email='Tobias.Jakobi@med.Uni-Heidelberg.DE',
+
     # Choose your license
     license='GNU General Public License (GPL)',
 
@@ -44,7 +47,7 @@ setup(
         #   3 - Alpha
         #   4 - Beta
         #   5 - Production/Stable
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
 
         # Indicate who your project is intended for
         'Intended Audience :: Researchers',
