@@ -20,7 +20,7 @@ from fix2chimera import Fix2Chimera
 
 
 def main():
-    version = "0.4"
+    version = "0.4.1"
 
     parser = argparse.ArgumentParser(prog="DCC", formatter_class=argparse.RawDescriptionHelpFormatter,
                                      fromfile_prefix_chars="@",
@@ -152,7 +152,15 @@ def main():
     cm = Cc.Combine()
     circann = Ca.CircAnnotate(strand=options.strand)
 
-    if checkjunctionfiles(options.Input, options.mate1, options.mate2):
+    if (not options.mate1 or not options.mate1) and options.pairedendindependent:
+        logging.info('-Pi (Paired independent mode) specified but -mt1, -mt2, or both are missing.  '
+                     'Will not use mate information.')
+        print('-Pi (Paired independent mode) specified but -mt1, -mt2, or both are missing.  '
+              'Will not use mate information.')
+
+        options.pairedendindependent = False
+
+    if checkjunctionfiles(options.Input, options.mate1, options.mate2, options.pairedendindependent):
         logging.info("circRNA detection skipped due to empty junction files")
         print("circRNA detection skipped due to empty junction files")
 
@@ -437,7 +445,8 @@ def checkfile(filename, previousstate):
     return previousstate
 
 
-def checkjunctionfiles(joinedfnames, mate1filenames, mate2filenames):
+def checkjunctionfiles(joinedfnames, mate1filenames, mate2filenames, pairedendindependent):
+
     # Check if the junctions files have actually any content
     # if no, skip circRNA detection (and return True)
 
@@ -447,22 +456,55 @@ def checkjunctionfiles(joinedfnames, mate1filenames, mate2filenames):
     mate2empty = False
     joinedempty = False
 
-    # check input files
-    if len(mate1filenames) == len(mate2filenames) == len(joinedfnames):
+    if pairedendindependent:
+
+        print mate1filenames
+        print mate2filenames
+        print joinedfnames
+
+        # check input files
+        if len(mate1filenames) == len(mate2filenames) == len(joinedfnames):
+
+            for i in range(len(joinedfnames)):
+                # check for mate 1 files
+                mate1empty = checkfile(mate1filenames[i], mate1empty)
+
+                # check for mate 2 files
+                mate2empty = checkfile(mate2filenames[i], mate2empty)
+
+                # check for combined files
+                joinedempty = checkfile(joinedfnames[i], joinedempty)
+
+            print mate1empty
+            print mate2empty
+            print joinedempty
+
+            if mate1empty or mate2empty or joinedempty:
+                skipcirc = True
+                print skipcirc
+
+        else:
+            skipcirc = True
+
+        if skipcirc:
+            logging.warning('Junction files seem empty, skipping circRNA detection module.')
+            print('Junction files seem empty, skipping circRNA detection module.')
+
+        return skipcirc
+
+    else:
 
         for i in range(len(joinedfnames)):
-            # check for mate 1 files
-            mate1empty = checkfile(mate1filenames[i], mate1empty)
-
-            # check for mate 2 files
-            mate2empty = checkfile(mate2filenames[i], mate2empty)
 
             # check for combined files
             joinedempty = checkfile(joinedfnames[i], joinedempty)
 
+        if joinedempty:
+            skipcirc = True
+
         if skipcirc:
-            logging.warning("Junction files seem empty, skipping circRNA detection module")
-            print("Junction files seem empty, skipping circRNA detection module")
+            logging.warning('Junction files seem empty, skipping circRNA detection module.')
+            print('Junction files seem empty, skipping circRNA detection module.')
 
         return skipcirc
 
