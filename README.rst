@@ -2,7 +2,7 @@
 DCC: detect circRNAs from chimeric reads
 *****************************************
 
-**NOTICE**: Bedtools version 2.25 includes a bug known to cause DCC fail at a step involving the function groupby. We're working on removing the dependency on Bedtools but by now the solution is as follows:
+**NOTICE**: Bedtools version 2.25 includes a bug known to cause DCC to fail at a step involving the function groupby. We're working on removing the dependency on Bedtools but by now the solution is as follows:
 
 - Install Bedtools version 2.24
 - Make sure version 2.24 is the default bedtools version in your environment before running DCC
