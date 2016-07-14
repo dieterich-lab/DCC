@@ -461,10 +461,6 @@ def checkjunctionfiles(joinedfnames, mate1filenames, mate2filenames, pairedendin
 
     if pairedendindependent:
 
-        print mate1filenames
-        print mate2filenames
-        print joinedfnames
-
         # check input files
         if len(mate1filenames) == len(mate2filenames) == len(joinedfnames):
 
@@ -478,13 +474,8 @@ def checkjunctionfiles(joinedfnames, mate1filenames, mate2filenames, pairedendin
                 # check for combined files
                 joinedempty = checkfile(joinedfnames[i], joinedempty)
 
-            print mate1empty
-            print mate2empty
-            print joinedempty
-
             if mate1empty or mate2empty or joinedempty:
                 skipcirc = True
-                print skipcirc
 
         else:
             skipcirc = True
