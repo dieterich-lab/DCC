@@ -64,8 +64,8 @@ class CircAnnotate(object):
 
         # Annotate with Interval tree algorithm
         out = open(output, 'w')
-        circ_reagions = HTSeq.BED_Reader(circfile)
-        for circ in circ_reagions:
+        circ_regions = HTSeq.BED_Reader(circfile)
+        for circ in circ_regions:
             annotation = self.annotate_one_interval(circ.iv, annotation_tree, what='gene')
             out.write('\t'.join([circ.iv.chrom, str(circ.iv.start), str(circ.iv.end), annotation, str(int(circ.score)),
                                  circ.iv.strand]) + '\n')
@@ -84,6 +84,7 @@ class CircAnnotate(object):
         # create left and right circle bundary bedfiles: chr\tstart\tstart  chr\tend\tend
         circ = open(circfile, 'r').readlines()
         new_CircCoordinates = open(output, 'w')
+        new_CircCoordinates.write('Chr\tStart\tEnd\tGene\tJunctionType\tStrand\tStart-End Region\tOverallRegion\n')
         for line in circ:
             line_split = line.split('\t')
             iv_left = HTSeq.GenomicInterval(line_split[0], int(line_split[1]), int(line_split[1]),
