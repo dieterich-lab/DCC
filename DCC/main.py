@@ -126,7 +126,7 @@ def main():
         os.mkdir("_tmp_DCC")
 
     # Get input file names
-    filenames = [getfilename(name) for name in options.Input]
+    filenames = [os.path.basename(name) for name in options.Input]
     samplelist = "\t".join(filenames)
 
     # check whether the junction file names have duplicates
@@ -446,7 +446,6 @@ def checkfile(filename, previousstate):
 
 
 def checkjunctionfiles(joinedfnames, mate1filenames, mate2filenames, pairedendindependent):
-
     # Check if the junctions files have actually any content
     # if no, skip circRNA detection (and return True)
 
@@ -486,7 +485,6 @@ def checkjunctionfiles(joinedfnames, mate1filenames, mate2filenames, pairedendin
     else:
 
         for i in range(len(joinedfnames)):
-
             # check for combined files
             joinedempty = checkfile(joinedfnames[i], joinedempty)
 
@@ -498,12 +496,6 @@ def checkjunctionfiles(joinedfnames, mate1filenames, mate2filenames, pairedendin
             print('Junction files seem empty, skipping circRNA detection module.')
 
         return skipcirc
-
-
-def getfilename(namestring):
-    tmp = namestring.split("/")
-    filename = tmp[-1].strip("\n")
-    return filename
 
 
 def logdeleted(deleted):
@@ -545,35 +537,35 @@ def findCircSkipJunction(CircCoordinates, gtffile, circfiles, SJ_out_tab, strand
     # Modify gtf file
     if not os.path.isfile("_tmp_DCC/tmp_" + os.path.basename(gtffile) + ".exon.sorted"):
         CCEM.select_exon(gtffile)
-    if CCEM.modifyExon_id("_tmp_DCC/tmp_" + getfilename(gtffile) + ".exon.sorted"):
+    if CCEM.modifyExon_id("_tmp_DCC/tmp_" + os.path.basename(gtffile) + ".exon.sorted"):
         # Start and end coordinates
         start2end = CCEM.print_start_end_file(CircCoordinates)
         Iv2Custom_exon_id, Custom_exon_id2Iv, Custom_exon_id2Length = CCEM.readNonUniqgtf(
-            "_tmp_DCC/tmp_" + getfilename(gtffile) + ".exon.sorted.modified")
+            "_tmp_DCC/tmp_" + os.path.basename(gtffile) + ".exon.sorted.modified")
         if strand:
-            circStartExons = CCEM.intersectcirc("_tmp_DCC/tmp_start.bed", "_tmp_DCC/tmp_" + getfilename(
+            circStartExons = CCEM.intersectcirc("_tmp_DCC/tmp_start.bed", "_tmp_DCC/tmp_" + os.path.basename(
                 gtffile) + ".exon.sorted.modified")  # Circle start or end to corresponding exons
         else:
             circStartExons = CCEM.intersectcirc("_tmp_DCC/tmp_start.bed",
-                                                "_tmp_DCC/tmp_" + getfilename(gtffile) + ".exon.sorted.modified",
+                                                "_tmp_DCC/tmp_" + os.path.basename(gtffile) + ".exon.sorted.modified",
                                                 strand=False)
         circStartAdjacentExons, circStartAdjacentExonsIv = CCEM.findcircAdjacent(circStartExons, Custom_exon_id2Iv,
                                                                                  Iv2Custom_exon_id, start=True)
         if strand:
-            circEndExons = CCEM.intersectcirc("_tmp_DCC/tmp_end.bed", "_tmp_DCC/tmp_" + getfilename(
+            circEndExons = CCEM.intersectcirc("_tmp_DCC/tmp_end.bed", "_tmp_DCC/tmp_" + os.path.basename(
                 gtffile) + ".exon.sorted.modified")  # Circle start or end to corresponding exons
         else:
             circEndExons = CCEM.intersectcirc("_tmp_DCC/tmp_end.bed",
-                                              "_tmp_DCC/tmp_" + getfilename(gtffile) + ".exon.sorted.modified",
+                                              "_tmp_DCC/tmp_" + os.path.basename(gtffile) + ".exon.sorted.modified",
                                               strand=False)
         circEndAdjacentExons, circEndAdjacentExonsIv = CCEM.findcircAdjacent(circEndExons, Custom_exon_id2Iv,
                                                                              Iv2Custom_exon_id, start=False)
         exonskipjunctions = CCEM.exonskipjunction(circStartAdjacentExonsIv, circEndAdjacentExonsIv, start2end)
         for indx, fname in enumerate(SJ_out_tab):
             if same:
-                path = "_tmp_DCC/" + getfilename(fname).replace("SJ.out.tab", str(indx))
+                path = "_tmp_DCC/" + os.path.basename(fname).replace("SJ.out.tab", str(indx))
             else:
-                path = "_tmp_DCC/" + getfilename(fname).replace("SJ.out.tab", "")
+                path = "_tmp_DCC/" + os.path.basename(fname).replace("SJ.out.tab", "")
             junctionReadCount = CCEM.readSJ_out_tab(fname)
             if len(junctionReadCount) == 0:
                 logging.error("Do you have SJ.out.tab files in your sample folder? DCC cannot find it")
@@ -606,7 +598,7 @@ def wraphostgenecount(bamfile, circ_coor, ref, countlinearsplicedreads=True):
     tid = id_generator()
 
     # create an (temporary) output file based on tid and file name
-    output = "_tmp_DCC/tmp_" + bamfile + "_" + tid + "_junction.linear"
+    output = "_tmp_DCC/tmp_" + os.path.basename(bamfile) + "_" + tid + "_junction.linear"
 
     print "Counting host gene expression based on " \
           "detected and filtered circRNA coordinates for %s" % bamfile
@@ -629,9 +621,9 @@ def wrapfindcirc(files, endTol, maxL, minL, strand=True, pairdendindependent=Tru
     print "started circRNA detection from file %s" % files
 
     if same:
-        circfilename = "_tmp_DCC/" + getfilename(files) + indx + ".circRNA"
+        circfilename = "_tmp_DCC/" + os.path.basename(files) + indx + ".circRNA"
     else:
-        circfilename = "_tmp_DCC/" + getfilename(files) + ".circRNA"
+        circfilename = "_tmp_DCC/" + os.path.basename(files) + ".circRNA"
     if pairdendindependent:
         f.printcircline(files, "_tmp_DCC/tmp_printcirclines" + indx)
 
