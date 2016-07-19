@@ -41,7 +41,6 @@ class CircAnnotate(object):
         new_gtf = open('_tmp_DCC/tmp_' + os.path.basename(gtf_file) + '.exon.sorted', 'w')
         new_gtf.writelines(gtf_exon_sorted)
         new_gtf.close()
-
         return annotation_tree
 
     def annotate_one_interval(self, interval, annotation_tree, what='gene'):
@@ -60,7 +59,6 @@ class CircAnnotate(object):
             if len(tmpsplit) != 6:
                 warnings.warn('Input circRNA file is not the desired bed6 format!')
                 logging.warning('Input circRNA file is not the desired bed6 format!')
-            ncol = len(tmpsplit)
 
         # Annotate with Interval tree algorithm
         out = open(output, 'w')
@@ -87,17 +85,18 @@ class CircAnnotate(object):
         new_CircCoordinates.write('Chr\tStart\tEnd\tGene\tJunctionType\tStrand\tStart-End Region\tOverallRegion\n')
         for line in circ:
             line_split = line.split('\t')
-            iv_left = HTSeq.GenomicInterval(line_split[0], int(line_split[1]), int(line_split[1]),
+            iv_left = HTSeq.GenomicInterval(line_split[0], int(line_split[1]), int(line_split[1]) + 1,
                                             line_split[5].strip('\n'))
-            iv_right = HTSeq.GenomicInterval(line_split[0], int(line_split[2]), int(line_split[2]),
+            iv_right = HTSeq.GenomicInterval(line_split[0], int(line_split[2]) - 1, int(line_split[2]),
                                              line_split[5].strip('\n'))
-            iv_left_annotation = self.annotate_one_interval(iv_left, annotation_tree, what='reagion')
+            iv_left_annotation = self.annotate_one_interval(iv_left, annotation_tree, what='region')
             if not iv_left_annotation:
                 iv_left_annotation = '.'
-            iv_right_annotation = self.annotate_one_interval(iv_right, annotation_tree, what='reagion')
+            iv_right_annotation = self.annotate_one_interval(iv_right, annotation_tree, what='region')
             if not iv_right_annotation:
                 iv_right_annotation = '.'
-            overall_annotation = self.uniqstring(iv_right_annotation + ',' + iv_right_annotation)
+            overall_annotation = self.uniqstring(iv_left_annotation + ',' + iv_right_annotation)
+
             iv_left_annotation = self.readRegionAnnotate(iv_left_annotation)
             iv_right_annotation = self.readRegionAnnotate(iv_right_annotation)
             new_CircCoordinates.write(line.strip(
@@ -107,9 +106,9 @@ class CircAnnotate(object):
     def readRegionAnnotate(self, annotations):
         if 'exon' in annotations:
             return 'exon'
-        elif len(annotations) > 1 and annotations != 'region':
+        elif len(annotations) > 1 and annotations != 'region' and annotations != 'not_annotated':
             return 'intron'
-        elif len(annotations) == 1 or annotations == 'region':
+        elif annotations == 'not_annotated':
             return 'intergenic'
 
     def filtbygene(self, circ2filter, output):
@@ -141,7 +140,7 @@ class CircAnnotate(object):
 
     def searchGeneName1(self, annotations):
         # Search for gene_name in gtf annotation, if gene_name cannot be found, look for gene_id
-        # input example: gene_id "ENSG00000187634"; gene_name "SAMD11"; gene_source "ensembl_havana"; gene_biotype "lincRNA";
+        # example: gene_id "ENSG00000187634"; gene_name "SAMD11"; gene_source "ensembl_havana"; gene_biotype "lincRNA";
         ann = ','.join(list(set(re.findall(r'gene_name\=?\s?"([^;]*)"\;', annotations))))
         if len(ann) == 0:
             # Look for "gene=", which is used in gff3 format
@@ -200,4 +199,5 @@ class CircAnnotate(object):
         if not genes:
             # empty string
             genes = 'not_annotated'
+
         return genes
