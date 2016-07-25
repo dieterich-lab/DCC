@@ -410,10 +410,13 @@ def main():
         logdeleted(deleted)
         deleted = cm.deletfile(os.getcwd(), circfiles + [files + "mapped" for files in circfiles])
         logdeleted(deleted)
-        deleted = cm.deletfile("", CircSkipfiles)
-        logdeleted(deleted)
-        deleted = cm.deletfile("", CircSkipfilesmapped)
-        logdeleted(deleted)
+
+        if options.annotate and options.detect and not options.circ:
+            deleted = cm.deletfile("", CircSkipfiles)
+            logdeleted(deleted)
+            deleted = cm.deletfile("", CircSkipfilesmapped)
+            logdeleted(deleted)
+
     logging.info("DCC completed successfully")
 
 
