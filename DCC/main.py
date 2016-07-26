@@ -117,6 +117,7 @@ def main():
 
     logging.info("DCC %s started" % version)
     print "DCC %s started" % version
+    logging.info('DCC command line: ' + ' '.join(sys.argv))
 
     try:
         os.mkdir("_tmp_DCC")
