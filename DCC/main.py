@@ -431,7 +431,7 @@ def fixall(joinedfnames, mate1filenames, mate2filenames):
         for i in range(len(joinedfnames)):
             fx.fixation(mate1filenames[i], mate2filenames[i], joinedfnames[i],
                         os.path.basename(joinedfnames[i]) + ".fixed")  # TODO: allow a custom output directory
-            outputs.append(joinedfnames[i] + ".fixed")
+            outputs.append(os.path.basename(joinedfnames[i]) + ".fixed")
     else:
         logging.error("The number of input mate1, mate2 and joined mapping files are different")
         sys.exit("The number of input mate1, mate2 and joined mapping files are different")
