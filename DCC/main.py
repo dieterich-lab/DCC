@@ -428,7 +428,8 @@ def fixall(joinedfnames, mate1filenames, mate2filenames):
     # check mate1 and mate2 input
     if len(mate1filenames) == len(mate2filenames) == len(joinedfnames):
         for i in range(len(joinedfnames)):
-            fx.fixation(mate1filenames[i], mate2filenames[i], joinedfnames[i], joinedfnames[i] + ".fixed")
+            fx.fixation(mate1filenames[i], mate2filenames[i], joinedfnames[i],
+                        os.path.basename(joinedfnames[i]) + ".fixed")  # TODO: allow a custom output directory
             outputs.append(joinedfnames[i] + ".fixed")
     else:
         logging.error("The number of input mate1, mate2 and joined mapping files are different")
