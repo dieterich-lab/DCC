@@ -123,12 +123,32 @@ def main():
     print "DCC %s started" % version
     logging.info('DCC command line: ' + ' '.join(sys.argv))
 
-    try:
-        os.mkdir("_tmp_DCC")
-    except OSError:
-        from shutil import rmtree
-        rmtree("_tmp_DCC/")
-        os.mkdir("_tmp_DCC")
+    options.out_dir = "./"  # REMOVE ME WHEN OUT DIR IS READY
+    options.tmp_dir = "_tmp_DCC/"  # REMOVE ME WHEN TMP DIR IS READY
+
+    if not os.path.isdir(options.out_dir):
+        try:
+            os.makedirs(options.out_dir)
+        except OSError:
+            print "Could not create output folder %s" % options.out_dir
+            logging.info("Could not create output folder %s" % options.out_dir)
+
+            exit(-1)
+    else:
+        print "Output folder %s already exists, reusing" % options.out_dir
+
+    # create temporary directory if not existing
+
+    options.out_dir = "_tmp_DCC/"  ## REMOVE ME WHEN TMP DIR IS READY
+
+    if not os.path.isdir(options.out_dir):
+        try:
+            os.makedirs(options.tmp_dir)
+        except OSError:
+            print "Could not create temporary folder %s" % options.tmp_dir
+            exit(-1)
+    else:
+        print "Temporary folder %s already exists, reusing" % options.tmp_dir
 
     # Get input file names
     filenames = [os.path.basename(name) for name in options.Input]
