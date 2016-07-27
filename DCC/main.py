@@ -374,6 +374,9 @@ def main():
             print "No BAM files provided (-B) trying to automatically guess BAM file names"
             logging.info("No BAM files provided (-B) trying to automatically guess BAM file names")
             bamfiles = convertjunctionfile2bamfile(options.Input)
+            if not bamfiles:
+                print "Could not guess BAM file names, please provides them manually via -B"
+                logging.info("Could not guess BAM file names, please provides them manually via -B")
         else:
             bamfiles = options.bam
 
@@ -541,20 +544,25 @@ def mergefiles(output, *fnames):
 
 
 def convertjunctionfile2bamfile(junctionfilelist):
+    # only works for STAR-like names: Aligned.noS.bam
     def getbamfname(junctionfname):
         import re
         import os
         # Get the stored directory
         dirt = "/".join((junctionfname.split("/")[:-1])) + "/"
         p = r".*Aligned\..*bam"
+        bamfname = ""
         for fname in os.listdir(dirt):
             if re.match(p, fname):
                 bamfname = dirt + re.findall(p, fname)[0]
-        return bamfname
+        if bamfname:
+            return bamfname
 
     bamfnames = []
     for fname in junctionfilelist:
-        bamfnames.append(getbamfname(fname))
+        entry = getbamfname(fname)
+        if entry:
+            bamfnames.append(getbamfname(fname))
     return bamfnames
 
 
