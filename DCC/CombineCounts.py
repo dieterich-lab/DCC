@@ -1,5 +1,3 @@
-#! /usr/bin/env python
-
 # This script used to combine individual circRNA count files to a single count table
 
 # invoke with column nr to extract as first parameter followed by
@@ -13,12 +11,14 @@ from copy import deepcopy
 
 
 class Combine(object):
+    def __init__(self, tmp_dir):
+        self.tmp_dir = tmp_dir
 
     def comb_coor(self, circfiles, strand=True):
         """
         Combine coordinates of all samples to one.
         """
-        coordinates = open('_tmp_DCC/tmp_coordinates', 'w')
+        coordinates = open(self.tmp_dir + 'coordinates', 'w')
         # coors = set()
         coorsDict = {}  # Use all except the strand and junction type information as key, to uniq the list.
 
@@ -71,19 +71,6 @@ class Combine(object):
                     if len(run_mapto[key]) == 1:
                         run_mapto[key].append('0')
                     fout.write('\t'.join(run_mapto[key]) + '\n')
-
-    # def map(self, coordinates, Alist, strand=True, col=5,o='distinct'):
-    #     '''
-    #     Take the combined coordinates and list of circRNA files.
-    #     '''
-    #     bed1 = pybedtools.BedTool(coordinates)
-    #     for files in Alist:
-    #         bed2 = pybedtools.BedTool(files)
-    #         if strand:
-    #             mapped = bed1.map(bed2,s=True, f=1,r=True,c=col,o=o,nonamecheck=True)
-    #         else:
-    #             mapped = bed1.map(bed2,s=False, f=1,r=True,c=col,o=o,nonamecheck=True)
-    #         mapped.moveto(files+'mapped')
 
     def deletfile(self, dirt, pattern):
         # First check whether the input is a list of files or a regular expression string

@@ -35,10 +35,10 @@ def main():
                         help="Temporary files will not be deleted [default: False]")
     parser.add_argument("-T", "--threads", dest="cpu_threads", type=int, default=2,
                         help="Number of CPU threads used for computation [default: 2]")
-    # parser.add_argument("-O", "--output", dest="out_dir", default="./",
-    #                     help="DCC output directory [default: .]")
-    # parser.add_argument("-t", "--temp", dest="tmp_dir", default="_tmp_DCC/",
-    #                     help="DCC temporary directory [default: _tmp_DCC/]")
+    parser.add_argument("-O", "--output", dest="out_dir", default="./",
+                        help="DCC output directory [default: .]")
+    parser.add_argument("-t", "--temp", dest="tmp_dir", default="_tmp_DCC/",
+                        help="DCC temporary directory [default: _tmp_DCC/]")
 
     group = parser.add_argument_group("Find circRNA Options", "Options to find circRNAs from STAR output")
     group.add_argument("-D", "--detect", action="store_true", dest="detect", default=False,
@@ -104,8 +104,10 @@ def main():
 
     options = parser.parse_args()
 
-    timestr = time.strftime("%Y%m%d-%H%M%S")
-    logging.basicConfig(filename="DCC.log" + timestr, filemode="w", level=logging.DEBUG,
+    timestr = time.strftime("%Y-%m-%d_%H:%M")
+
+    logging.basicConfig(filename=os.path.join(options.out_dir, "DCC-" + timestr + ".log"),
+                        filemode="w", level=logging.DEBUG,
                         format="%(asctime)s %(message)s")
 
     # root = logging.getLogger()
@@ -123,8 +125,8 @@ def main():
     print "DCC %s started" % version
     logging.info('DCC command line: ' + ' '.join(sys.argv))
 
-    options.out_dir = "./"  # REMOVE ME WHEN OUT DIR IS READY
-    options.tmp_dir = "_tmp_DCC/"  # REMOVE ME WHEN TMP DIR IS READY
+    # options.out_dir = "./"  # REMOVE ME WHEN OUT DIR IS READY
+    # options.tmp_dir = options.tmp_dir + " "  # REMOVE ME WHEN TMP DIR IS READY
 
     if not os.path.isdir(options.out_dir):
         try:
@@ -139,9 +141,7 @@ def main():
 
     # create temporary directory if not existing
 
-    options.out_dir = "_tmp_DCC/"  ## REMOVE ME WHEN TMP DIR IS READY
-
-    if not os.path.isdir(options.out_dir):
+    if not os.path.isdir(options.tmp_dir):
         try:
             os.makedirs(options.tmp_dir)
         except OSError:
@@ -153,6 +153,16 @@ def main():
     # Get input file names
     filenames = [os.path.basename(name) for name in options.Input]
     samplelist = "\t".join(filenames)
+
+    # make sure the user supplied path variables have a trailing /
+    options.tmp_dir = os.path.join(options.tmp_dir, "")
+    options.out_dir = os.path.join(options.out_dir, "")
+
+    # set output file names
+    output_coordinates = options.out_dir + "CircCoordinates"
+    output_circ_counts = options.out_dir + "CircRNACount"
+    output_linear_counts = options.out_dir + "LinearCount"
+    output_skips = options.out_dir + "CircSkipJunctions"
 
     # check whether the junction file names have duplicates
     same = False
@@ -174,8 +184,8 @@ def main():
     pool = multiprocessing.Pool(processes=options.cpu_threads)
 
     # Make instance
-    cm = Cc.Combine()
-    circann = Ca.CircAnnotate(strand=options.strand)
+    cm = Cc.Combine(options.tmp_dir)
+    circann = Ca.CircAnnotate(tmp_dir=options.tmp_dir, strand=options.strand)
 
     if (not options.mate1 or not options.mate1) and options.pairedendindependent:
         logging.info('-Pi (Paired independent mode) specified but -mt1, -mt2, or both are missing.  '
@@ -213,7 +223,7 @@ def main():
             # Fix2chimera problem by STAR
             print ("Collecting chimera information from mates-separate mapping")
             logging.info("Collecting chimera information from mates-separate mapping")
-            Input = fixall(options.Input, options.mate1, options.mate2)
+            Input = fixall(options.Input, options.mate1, options.mate2, options.out_dir, options.tmp_dir)
         else:
             Input = options.Input
 
@@ -221,22 +231,22 @@ def main():
 
             if options.pairedendindependent:
                 circfiles = pool.map(
-                    functools.partial(wrapfindcirc, endTol=options.endTol, maxL=options.max, minL=options.min,
-                                      strand=True, pairdendindependent=True, same=same), Input)
+                    functools.partial(wrapfindcirc, tmp_dir=options.tmp_dir, endTol=options.endTol, maxL=options.max,
+                                      minL=options.min, strand=True, pairdendindependent=True, same=same), Input)
             else:
                 circfiles = pool.map(
-                    functools.partial(wrapfindcirc, endTol=options.endTol, maxL=options.max, minL=options.min,
-                                      strand=True, pairdendindependent=False, same=same), Input)
+                    functools.partial(wrapfindcirc, tmp_dir=options.tmp_dir, endTol=options.endTol, maxL=options.max,
+                                      minL=options.min, strand=True, pairdendindependent=False, same=same), Input)
 
         else:
             if options.pairedendindependent:
                 circfiles = pool.map(
-                    functools.partial(wrapfindcirc, endTol=options.endTol, maxL=options.max, minL=options.min,
-                                      strand=False, pairdendindependent=True, same=same), Input)
+                    functools.partial(wrapfindcirc, tmp_dir=options.tmp_dir, endTol=options.endTol, maxL=options.max,
+                                      minL=options.min, strand=False, pairdendindependent=True, same=same), Input)
             else:
                 circfiles = pool.map(
-                    functools.partial(wrapfindcirc, endTol=options.endTol, maxL=options.max, minL=options.min,
-                                      strand=False, pairdendindependent=False, same=same), Input)
+                    functools.partial(wrapfindcirc, tmp_dir=options.tmp_dir, endTol=options.endTol, maxL=options.max,
+                                      minL=options.min, strand=False, pairdendindependent=False, same=same), Input)
 
         # Combine the individual count files
         # Create a list of ".circRNA" file names
@@ -244,7 +254,7 @@ def main():
         logging.info("Combining individual circRNA read counts")
 
         cm.comb_coor(circfiles, strand=options.strand)
-        cm.map("_tmp_DCC/tmp_coordinates", circfiles, strand=options.strand)
+        cm.map(options.tmp_dir + "coordinates", circfiles, strand=options.strand)
 
         res = cm.combine([files + "mapped" for files in circfiles], col=7, circ=True)
 
@@ -254,35 +264,39 @@ def main():
             strand_swap = {}
             strand_swap["+\n"] = "-\n"
             strand_swap["-\n"] = "+\n"
-            toswap = open("_tmp_DCC/tmp_coordinates").readlines()
-            swaped = open("_tmp_DCC/tmp_coordinatesswaped", "w")
+            toswap = open(options.tmp_dir + "coordinates").readlines()
+            swaped = open(options.tmp_dir + "coordinatesswaped", "w")
             for lin in toswap:
                 lin_split = lin.split("\t")
                 lin_split[5] = strand_swap[lin_split[5]]
                 swaped.write("\t".join(lin_split))
             swaped.close()
-            os.remove("_tmp_DCC/tmp_coordinates")
-            os.rename("_tmp_DCC/tmp_coordinatesswaped", "_tmp_DCC/tmp_coordinates")
+            os.remove(options.tmp_dir + "coordinates")
+            os.rename(options.tmp_dir + "coordinatesswaped", options.tmp_dir + "coordinates")
 
         if options.filter:
-            cm.writeouput("_tmp_DCC/tmp_circCount", res)
+            cm.writeouput(options.tmp_dir + "circCount", res)
             if options.annotate:
                 logging.info("Write in annotation")
                 logging.info("Select gene features in Annotation file")
                 annotation_tree = circann.selectGeneGtf(options.annotate)
-                circann.annotate("_tmp_DCC/tmp_coordinates", annotation_tree, "_tmp_DCC/tmp_coordinatesannotated")
-                os.remove("_tmp_DCC/tmp_coordinates")
-                os.rename("_tmp_DCC/tmp_coordinatesannotated", "_tmp_DCC/tmp_coordinates")
+                circann.annotate(options.tmp_dir + "coordinates", annotation_tree,
+                                 options.tmp_dir + "coordinates_annotated")
+                os.remove(options.tmp_dir + "coordinates")
+                os.rename(options.tmp_dir + "coordinates_annotated", options.tmp_dir + "coordinates")
         else:
-            cm.writeouput("CircRNACount", res, samplelist, header=True)
+            cm.writeouput(output_circ_counts, res, samplelist, header=True)
             if options.annotate:
                 logging.info("Write in annotation")
                 logging.info("Select gene features in Annotation file")
                 annotation_tree = circann.selectGeneGtf(options.annotate)
-                circann.annotate("_tmp_DCC/tmp_coordinates", annotation_tree, "_tmp_DCC/tmp_coordinatesannotated")
-                circann.annotateregions("_tmp_DCC/tmp_coordinatesannotated", annotation_tree, "CircCoordinates")
+                circann.annotate(options.tmp_dir + "coordinates", annotation_tree,
+                                 options.tmp_dir + "coordinates_annotated")
+                circann.annotateregions(options.tmp_dir + "coordinates_annotated", annotation_tree,
+                                        output_coordinates)
             else:
-                os.rename("_tmp_DCC/tmp_coordinates", "CircCoordinates")
+
+                os.rename(options.tmp_dir + "coordinates", output_coordinates)
 
     # Filtering
     if options.filter:
@@ -310,8 +324,8 @@ def main():
 
         elif options.detect:
 
-            file2filter = "_tmp_DCC/tmp_circCount"
-            coorfile = "_tmp_DCC/tmp_coordinates"
+            file2filter = options.tmp_dir + "circCount"
+            coorfile = options.tmp_dir + "coordinates"
             logging.info("Using files _tmp_DCC/tmp_circCount and _tmp_DCC/tmp_coordinates for filtering")
             print "Using files _tmp_DCC/tmp_circCount and _tmp_DCC/tmp_coordinates for filtering"
 
@@ -334,18 +348,20 @@ def main():
             filt.filter_nonrep(rep_file, indx0, count0)
 
         if not options.chrM and not options.filterbygene:
-            filt.sortOutput("_tmp_DCC/tmp_unsortedWithChrM", "CircRNACount", "CircCoordinates", samplelist)
+            filt.sortOutput(options.tmp_dir + "unsortedWithChrM", output_circ_counts,
+                            output_coordinates, samplelist)
 
         # Filter chrM, if no further filtering, return "CircRNACount" and "CircCoordinates",
         # else return "_tmp_DCC/tmp_unsortedNoChrM"
         if options.chrM:
             logging.info("Deleting circRNA candidates from mitochondrial chromosome")
-            filt.removeChrM("_tmp_DCC/tmp_unsortedWithChrM")
+            filt.removeChrM(options.tmp_dir + "unsortedWithChrM")
             if not options.filterbygene:
-                filt.sortOutput("_tmp_DCC/tmp_unsortedNoChrM", "CircRNACount", "CircCoordinates", samplelist)
+                filt.sortOutput(options.tmp_dir + "unsortedNoChrM", output_circ_counts,
+                                output_coordinates, samplelist)
         else:
-            os.rename("_tmp_DCC/tmp_unsortedWithChrM",
-                      "_tmp_DCC/tmp_unsortedNoChrM")
+            os.rename(options.tmp_dir + "unsortedWithChrM",
+                      options.tmp_dir + "unsortedNoChrM")
             # Note in this case "_tmp_DCC/tmp_unsortedNoChrM" actually has chrM
 
         # Filter by gene annotation, require one circRNA could not from more than one gene.
@@ -354,17 +370,21 @@ def main():
             if options.annotate:
                 logging.info("Filtering by gene annotation. "
                              "CircRNA candidates from more than one genes are deleted")
-                circann.filtbygene("_tmp_DCC/tmp_unsortedNoChrM", "_tmp_DCC/tmp_unsortedfilterbygene")
-                filt.sortOutput("_tmp_DCC/tmp_unsortedfilterbygene", "CircRNACount", "CircCoordinates", samplelist)
+                circann.filtbygene(options.tmp_dir + "unsortedNoChrM",
+                                   options.tmp_dir + "unsortedfilterbygene")
+                filt.sortOutput(options.tmp_dir + "unsortedfilterbygene", output_circ_counts,
+                                output_coordinates, samplelist)
             else:
                 logging.warning(
                     "To filter by gene annotation, a annotation file in GTF/GFF format needed, "
                     "skiped filter by gene annotation")
-                filt.sortOutput("_tmp_DCC/tmp_unsortedNoChrM", "CircRNACount", "CircCoordinates", samplelist)
+                filt.sortOutput(options.tmp_dir + "unsortedNoChrM", output_circ_counts,
+                                output_coordinates, samplelist)
 
         # Add annotation of regions
         if options.annotate:
-            circann.annotateregions("CircCoordinates", annotation_tree, "CircCoordinates")
+            circann.annotateregions(output_coordinates, annotation_tree,
+                                    output_coordinates)
 
         logging.info("Filtering finished")
 
@@ -385,6 +405,8 @@ def main():
             logging.warning("Please provide reference sequence, program will not count host gene expression")
 
         if options.refseq:
+            linearfiles = []  # A list for .linear file names
+
             # check whether the number of bamfiles is equale to the number of chimeric.junction.out files
             if len(bamfiles) != len(options.Input):
                 logging.error("The number of bam files does not match with chimeric junction files")
@@ -392,22 +414,22 @@ def main():
             else:
                 # For each sample (each bamfile), do one host gene count, and then combine to a single table
 
-                linearfiles = []  # A list for .linear file names
-
                 if options.circ:
                     linearfiles = pool.map(
-                        functools.partial(wraphostgenecount, circ_coor=options.circ, ref=options.refseq,
+                        functools.partial(wraphostgenecount, tmp_dir=options.tmp_dir, circ_coor=options.circ,
+                                          ref=options.refseq,
                                           countlinearsplicedreads=False), bamfiles)
                 else:
                     linearfiles = pool.map(
-                        functools.partial(wraphostgenecount, circ_coor="CircRNACount", ref=options.refseq,
+                        functools.partial(wraphostgenecount, tmp_dir=options.tmp_dir, circ_coor=output_circ_counts,
+                                          ref=options.refseq,
                                           countlinearsplicedreads=False), bamfiles)
 
                 logging.info("Finished linear gene expression counting, start to combine individual sample counts")
 
             # Combine all to a individual sample host gene count to a single table
             res = cm.combine(linearfiles, col=6, circ=False)
-            cm.writeouput("LinearCount", res, samplelist, header=True)
+            cm.writeouput(output_linear_counts, res, samplelist, header=True)
             logging.info("Finished combine individual linear gene expression counts")
 
             if not options.temp:
@@ -419,22 +441,23 @@ def main():
         logging.info("Count CircSkip junctions")
         print("Count CircSkip junctions")
         SJ_out_tab = getSJ_out_tab(options.Input)
-        CircSkipfiles = findCircSkipJunction("CircCoordinates", options.annotate, circfiles, SJ_out_tab,
+        CircSkipfiles = findCircSkipJunction(output_coordinates, options.tmp_dir,
+                                             options.annotate, circfiles, SJ_out_tab,
                                              strand=options.strand, same=same)
-        fin = open("CircCoordinates", "r").readlines()[1:]
-        with open("_tmp_DCC/tmp_CircCoordinatesNoheader", "w") as fout:
+        fin = open(output_coordinates, "r").readlines()[1:]
+        with open(options.tmp_dir + "CircCoordinatesNoheader", "w") as fout:
             fout.writelines(fin)
-        cm.map("_tmp_DCC/tmp_CircCoordinatesNoheader", CircSkipfiles, strand=options.strand, col=4)
+        cm.map(options.tmp_dir + "CircCoordinatesNoheader", CircSkipfiles, strand=options.strand, col=4)
         CircSkipfilesmapped = [fname + "mapped" for fname in CircSkipfiles]
         res = cm.combine(CircSkipfilesmapped, col=9)
-        cm.writeouput("CircSkipJunctions", res, samplelist, header=True)
+        cm.writeouput(output_skips, res, samplelist, header=True)
     else:
-        logging.info("CircSkip junctions cannot be count")
+        logging.info("CircSkip junctions not counted, not running in detected mode (-D)")
 
     # Delete temporary files
     if not options.temp:
         p3 = r"^tmp_\.*"
-        deleted = cm.deletfile(os.path.join(os.getcwd(), "_tmp_DCC/"), p3)
+        deleted = cm.deletfile(os.path.join(os.getcwd(), options.tmp_dir + " "), p3)
         logdeleted(deleted)
         deleted = cm.deletfile(os.getcwd(), circfiles + [files + "mapped" for files in circfiles])
         logdeleted(deleted)
@@ -448,17 +471,18 @@ def main():
     logging.info("DCC completed successfully")
 
 
-def fixall(joinedfnames, mate1filenames, mate2filenames):
+def fixall(joinedfnames, mate1filenames, mate2filenames, out_dir, tmp_dir):
     # Fix all 2chimera in one read/read pair for all inputs
     # outputs as a list of fixed filenames, with .fixed end
     outputs = []
-    fx = Fix2Chimera()
+    fx = Fix2Chimera(tmp_dir)
     # check mate1 and mate2 input
     if len(mate1filenames) == len(mate2filenames) == len(joinedfnames):
         for i in range(len(joinedfnames)):
+            extension = "." + id_generator()
             fx.fixation(mate1filenames[i], mate2filenames[i], joinedfnames[i],
-                        os.path.basename(joinedfnames[i]) + ".fixed")  # TODO: allow a custom output directory
-            outputs.append(os.path.basename(joinedfnames[i]) + ".fixed")
+                        os.path.join(out_dir, os.path.basename(joinedfnames[i]) + extension))
+            outputs.append(os.path.join(out_dir, os.path.basename(joinedfnames[i]) + extension))
     else:
         logging.error("The number of input mate1, mate2 and joined mapping files are different")
         sys.exit("The number of input mate1, mate2 and joined mapping files are different")
@@ -532,7 +556,7 @@ def checkjunctionfiles(joinedfnames, mate1filenames, mate2filenames, pairedendin
 
 def logdeleted(deleted):
     for itm in deleted:
-        logging.info("File" + " " + itm + " " + "Deleted!")
+        logging.info("File" + itm + "Deleted!")
 
 
 def mergefiles(output, *fnames):
@@ -567,42 +591,42 @@ def convertjunctionfile2bamfile(junctionfilelist):
 
 
 # CircSkip junctions
-def findCircSkipJunction(CircCoordinates, gtffile, circfiles, SJ_out_tab, strand=True, same=False):
+def findCircSkipJunction(CircCoordinates, tmp_dir, gtffile, circfiles, SJ_out_tab, strand=True, same=False):
     from Circ_nonCirc_Exon_Match import CircNonCircExon
     CircSkipfiles = []
-    CCEM = CircNonCircExon()
+    CCEM = CircNonCircExon(tmp_dir)
     # Modify gtf file
-    if not os.path.isfile("_tmp_DCC/tmp_" + os.path.basename(gtffile) + ".exon.sorted"):
+    if not os.path.isfile(tmp_dir + os.path.basename(gtffile) + ".exon.sorted"):
         CCEM.select_exon(gtffile)
-    if CCEM.modifyExon_id("_tmp_DCC/tmp_" + os.path.basename(gtffile) + ".exon.sorted"):
+    if CCEM.modifyExon_id(tmp_dir + os.path.basename(gtffile) + ".exon.sorted"):
         # Start and end coordinates
         start2end = CCEM.print_start_end_file(CircCoordinates)
         Iv2Custom_exon_id, Custom_exon_id2Iv, Custom_exon_id2Length = CCEM.readNonUniqgtf(
-            "_tmp_DCC/tmp_" + os.path.basename(gtffile) + ".exon.sorted.modified")
+            tmp_dir + os.path.basename(gtffile) + ".exon.sorted.modified")
         if strand:
-            circStartExons = CCEM.intersectcirc("_tmp_DCC/tmp_start.bed", "_tmp_DCC/tmp_" + os.path.basename(
+            circStartExons = CCEM.intersectcirc(tmp_dir + "start.bed", tmp_dir + os.path.basename(
                 gtffile) + ".exon.sorted.modified")  # Circle start or end to corresponding exons
         else:
-            circStartExons = CCEM.intersectcirc("_tmp_DCC/tmp_start.bed",
-                                                "_tmp_DCC/tmp_" + os.path.basename(gtffile) + ".exon.sorted.modified",
+            circStartExons = CCEM.intersectcirc(tmp_dir + "start.bed",
+                                                tmp_dir + os.path.basename(gtffile) + ".exon.sorted.modified",
                                                 strand=False)
         circStartAdjacentExons, circStartAdjacentExonsIv = CCEM.findcircAdjacent(circStartExons, Custom_exon_id2Iv,
                                                                                  Iv2Custom_exon_id, start=True)
         if strand:
-            circEndExons = CCEM.intersectcirc("_tmp_DCC/tmp_end.bed", "_tmp_DCC/tmp_" + os.path.basename(
+            circEndExons = CCEM.intersectcirc(tmp_dir + "end.bed", tmp_dir + os.path.basename(
                 gtffile) + ".exon.sorted.modified")  # Circle start or end to corresponding exons
         else:
-            circEndExons = CCEM.intersectcirc("_tmp_DCC/tmp_end.bed",
-                                              "_tmp_DCC/tmp_" + os.path.basename(gtffile) + ".exon.sorted.modified",
+            circEndExons = CCEM.intersectcirc(tmp_dir + "end.bed",
+                                              tmp_dir + os.path.basename(gtffile) + ".exon.sorted.modified",
                                               strand=False)
         circEndAdjacentExons, circEndAdjacentExonsIv = CCEM.findcircAdjacent(circEndExons, Custom_exon_id2Iv,
                                                                              Iv2Custom_exon_id, start=False)
         exonskipjunctions = CCEM.exonskipjunction(circStartAdjacentExonsIv, circEndAdjacentExonsIv, start2end)
         for indx, fname in enumerate(SJ_out_tab):
             if same:
-                path = "_tmp_DCC/" + os.path.basename(fname).replace("SJ.out.tab", str(indx))
+                path = tmp_dir + os.path.basename(fname).replace("SJ.out.tab", str(indx))
             else:
-                path = "_tmp_DCC/" + os.path.basename(fname).replace("SJ.out.tab", "")
+                path = tmp_dir + os.path.basename(fname).replace("SJ.out.tab", "")
             junctionReadCount = CCEM.readSJ_out_tab(fname)
             if len(junctionReadCount) == 0:
                 logging.error("Do you have SJ.out.tab files in your sample folder? DCC cannot find it")
@@ -627,15 +651,15 @@ def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
     return "".join(random.choice(chars) for _ in range(size))
 
 
-def wraphostgenecount(bamfile, circ_coor, ref, countlinearsplicedreads=True):
+def wraphostgenecount(bamfile, tmp_dir, circ_coor, ref, countlinearsplicedreads=True):
     # create the Genecount object
-    gc = Gc.Genecount()
+    gc = Gc.Genecount(tmp_dir)
 
     # generate a unique thread ID
     tid = id_generator()
 
     # create an (temporary) output file based on tid and file name
-    output = "_tmp_DCC/tmp_" + os.path.basename(bamfile) + "_" + tid + "_junction.linear"
+    output = tmp_dir + os.path.basename(bamfile) + "_" + tid + "_junction.linear"
 
     print "Counting host gene expression based on " \
           "detected and filtered circRNA coordinates for %s" % bamfile
@@ -647,7 +671,7 @@ def wraphostgenecount(bamfile, circ_coor, ref, countlinearsplicedreads=True):
     return output
 
 
-def wrapfindcirc(files, endTol, maxL, minL, strand=True, pairdendindependent=True, same=False):
+def wrapfindcirc(files, tmp_dir, endTol, maxL, minL, strand=True, pairdendindependent=True, same=False):
     # create local instance
     f = Fc.Findcirc(endTol=endTol, maxL=maxL, minL=minL)
 
@@ -658,46 +682,47 @@ def wrapfindcirc(files, endTol, maxL, minL, strand=True, pairdendindependent=Tru
     print "started circRNA detection from file %s" % files
 
     if same:
-        circfilename = "_tmp_DCC/" + os.path.basename(files) + indx + ".circRNA"
+        circfilename = tmp_dir + os.path.basename(files) + indx + ".circRNA"
     else:
-        circfilename = "_tmp_DCC/" + os.path.basename(files) + ".circRNA"
+        circfilename = tmp_dir + os.path.basename(files) + ".circRNA"
     if pairdendindependent:
-        f.printcircline(files, "_tmp_DCC/tmp_printcirclines" + indx)
+        f.printcircline(files, tmp_dir + "printcirclines." + indx)
 
         print "\t=> separating duplicates [%s]" % files
-        f.sepDuplicates("_tmp_DCC/tmp_printcirclines" + indx, "_tmp_DCC/tmp_duplicates" + indx,
-                        "_tmp_DCC/tmp_nonduplicates" + indx)
+        f.sepDuplicates(tmp_dir + "printcirclines." + indx, tmp_dir + "duplicates." + indx,
+                        tmp_dir + "nonduplicates." + indx)
 
         # Find small circles
         print "\t=> locating small circRNAs [%s]" % files
-        f.smallcirc("_tmp_DCC/tmp_duplicates" + indx, "_tmp_DCC/tmp_smallcircs" + indx)
+        f.smallcirc(tmp_dir + "duplicates." + indx, tmp_dir + "smallcircs." + indx)
 
         if strand:
             # Find normal circles
             print "\t=> locating circRNAs (stranded mode) [%s]" % files
-            f.findcirc("_tmp_DCC/tmp_nonduplicates" + indx, "_tmp_DCC/tmp_normalcircs" + indx, strand=True)
+            f.findcirc(tmp_dir + "nonduplicates." + indx, tmp_dir + "normalcircs." + indx, strand=True)
         else:
             print "\t=> locating circRNAs (unstranded mode) [%s]" % files
-            f.findcirc("_tmp_DCC/tmp_nonduplicates" + indx, "_tmp_DCC/tmp_normalcircs" + indx, strand=False)
+            f.findcirc(tmp_dir + "nonduplicates." + indx, tmp_dir + "normalcircs." + indx, strand=False)
 
         # Merge small and normal circles
         print "\t=> merging circRNAs [%s]" % files
-        mergefiles("_tmp_DCC/tmp_findcirc" + indx, "_tmp_DCC/tmp_smallcircs" + indx, "_tmp_DCC/tmp_normalcircs" + indx)
+        mergefiles(tmp_dir + "findcirc." + indx, tmp_dir + "smallcircs." + indx,
+                   tmp_dir + "normalcircs." + indx)
     else:
         if strand:
             print "\t=> locating circRNAs (stranded mode) [%s]" % files
-            f.findcirc(files, "_tmp_DCC/tmp_findcirc" + indx, strand=True)
+            f.findcirc(files, tmp_dir + "findcirc." + indx, strand=True)
         else:
             print "\t=> locating circRNAs (unstranded mode) [%s]" % files
-            f.findcirc(files, "_tmp_DCC/tmp_findcirc" + indx, strand=False)
+            f.findcirc(files, tmp_dir + "findcirc." + indx, strand=False)
 
     # Sort
     if strand:
         print "\t=> sorting circRNAs (stranded mode) [%s]" % files
-        sort.sort_count("_tmp_DCC/tmp_findcirc" + indx, circfilename, strand=True)
+        sort.sort_count(tmp_dir + "findcirc." + indx, circfilename, strand=True)
     else:
         print "\t=> sorting circRNAs (unstranded mode) [%s]" % files
-        sort.sort_count("_tmp_DCC/tmp_findcirc" + indx, circfilename, strand=False)
+        sort.sort_count(tmp_dir + "findcirc." + indx, circfilename, strand=False)
 
     logging.info("finished circRNA detection from file %s" % files)
     print "finished circRNA detection from file %s" % files

@@ -9,13 +9,16 @@ from IntervalTree import IntervalTree
 
 
 class CircNonCircExon(object):
+    def __init__(self, tmp_dir):
+        self.tmp_dir = tmp_dir
+
     def print_start_end_file(self, circcoordinates):
         # Print start.bed and end.bed
         # Get start and end corresponding relationship
         start2end = {}
         circ = open(circcoordinates, 'r')
-        start_bed = open('_tmp_DCC/tmp_start.bed', 'w')
-        end_bed = open('_tmp_DCC/tmp_end.bed', 'w')
+        start_bed = open(self.tmp_dir + 'start.bed', 'w')
+        end_bed = open(self.tmp_dir + 'end.bed', 'w')
         header = True
         for lin in circ:
             if header:
@@ -41,7 +44,7 @@ class CircNonCircExon(object):
 
     def select_exon(self, gtf_file):
         gtf = HTSeq.GFF_Reader(gtf_file, end_included=True)
-        new_gtf = open('_tmp_DCC/tmp_' + os.path.basename(gtf_file) + '.exon.sorted', 'w')
+        new_gtf = open(self.tmp_dir + '' + os.path.basename(gtf_file) + '.exon.sorted', 'w')
         gtf_exon = []
         for feature in gtf:
             # Select only exon line
@@ -59,7 +62,7 @@ class CircNonCircExon(object):
         # write custom_exon_id as transcript_id:exon_number
         gtf = HTSeq.GFF_Reader(exon_gtf_file, end_included=True)
         # gff = True
-        new_gtf = open('_tmp_DCC/' + os.path.basename(exon_gtf_file) + '.modified', 'w')
+        new_gtf = open(self.tmp_dir + os.path.basename(exon_gtf_file) + '.modified', 'w')
         exon_number = {}
         for feature in gtf:
             # if gff:

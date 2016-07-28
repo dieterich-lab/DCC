@@ -13,8 +13,9 @@ from IntervalTree import IntervalTree
 
 
 class CircAnnotate(object):
-    def __init__(self, strand=True):
+    def __init__(self, tmp_dir, strand=True):
         self.strand = strand
+        self.tmp_dir = tmp_dir
 
     def selectGeneGtf(self, gtf_file):
         # construct annotation tree
@@ -38,7 +39,7 @@ class CircAnnotate(object):
 
         gtf_exon_sorted = sorted(gtf_exon, key=lambda x: (x[0], int(x[3]), int(x[4])))
         gtf_exon_sorted = ['\t'.join(s) for s in gtf_exon_sorted]
-        new_gtf = open('_tmp_DCC/tmp_' + os.path.basename(gtf_file) + '.exon.sorted', 'w')
+        new_gtf = open(self.tmp_dir + os.path.basename(gtf_file) + '.exon.sorted', 'w')
         new_gtf.writelines(gtf_exon_sorted)
         new_gtf.close()
         return annotation_tree
