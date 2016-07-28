@@ -18,22 +18,13 @@ import pysam
 
 
 class Genecount(object):
-    # def __init__(self,circ_coor, bamfile, ref, output):
-    #    """
-    #    @circ_coor: quoted string, content with format "chr1\tstart\tend"
-    #    @bamfile: quoted string
-    #    @ref: quoted string
-    #    @output: quoted string
-    #    """
-    #
-    #    self.circ_coor = circ_coor
-    #    self.bamfile = bamfile
-    #    self.ref = ref
-    #    self.output = output
-    #    self.comb_gen_count(self.circ_coor, self.bamfile, self.ref, self.output)
+    def __init__(self, tmp_dir):
+        self.tmp_dir = tmp_dir
+
 
     def id_generator(self, size=6, chars=string.ascii_uppercase + string.digits):
         return "".join(random.choice(chars) for _ in range(size))
+
 
     def countmapped(self, string):
         # This function takes the 5th column (a string with mapping information),
@@ -43,10 +34,12 @@ class Genecount(object):
 
         return str(rs)
 
+
     def countspliced(self, string):
         # return the count of '>' and '<'
         rs = string.count('>') + string.count('<')
         return str(rs)
+
 
     def getreadscount(self, mpileup, countmapped=False):
         # Input a mpileup result, which is a list
@@ -85,6 +78,7 @@ class Genecount(object):
 
         return count
 
+
     def genecount(self, circ_coordinates, bamfile, ref, tid):
         """
         @circ_coordinates: quoted string, content with format "chr1\tstart\tend"
@@ -94,8 +88,8 @@ class Genecount(object):
 
         # process the circ_coordinates to left circ position and right circ position
         coordinates = open(circ_coordinates, 'r').readlines()[1:]
-        start_coordinates = open('start_coordinates_' + tid, 'w')
-        end_coordinates = open('end_coordinates_' + tid, 'w')
+        start_coordinates = open(self.tmp_dir + 'start_coordinates_' + tid, 'w')
+        end_coordinates = open(self.tmp_dir + 'end_coordinates_' + tid, 'w')
 
         for line in coordinates:
             tmp = line.split('\t')
@@ -111,14 +105,14 @@ class Genecount(object):
         start = time.time()
         # mpileup get the read counts of the start and end positions
         print ("\t=> running mpileup for start positions [%s]" % bamfile)
-        mpileup_start = pysam.mpileup(bamfile, '-f', ref, '-l', 'start_coordinates_' + tid)
+        mpileup_start = pysam.mpileup(bamfile, '-f', ref, '-l', self.tmp_dir + 'start_coordinates_' + tid)
         end = time.time() - start
         print ("\t=> mpileup for start positions for %s took %d seconds" % (bamfile, end))
 
         start = time.time()
         # mpileup get the read counts of the start and end positions
         print ("\t=> running mpileup for end positions [%s]" % bamfile)
-        mpileup_end = pysam.mpileup(bamfile, '-f', ref, '-l', 'end_coordinates_' + tid)
+        mpileup_end = pysam.mpileup(bamfile, '-f', ref, '-l', self.tmp_dir + 'end_coordinates_' + tid)
         end = time.time() - start
         print ("\t=> mpileup for end positions for %s took %d seconds" % (bamfile, end))
 
@@ -129,12 +123,13 @@ class Genecount(object):
         endcount = self.getreadscount(mpileup_end, countmapped=True)
 
         # remove tmp files
-        os.remove('start_coordinates_' + tid)
-        os.remove('end_coordinates_' + tid)
+        os.remove(self.tmp_dir + 'start_coordinates_' + tid)
+        os.remove(self.tmp_dir + 'end_coordinates_' + tid)
 
         print 'Finished linear gene expression counting for %s' % bamfile
 
         return startcount, endcount
+
 
     def submpileup(self, mpileup1, mpileup2, left=True):
         # Genome region: mpileup1 < mpileup2
@@ -183,10 +178,10 @@ class Genecount(object):
             coor = open(circ_coor, 'r').readlines()[1:]
         else:
             coor = open(circ_coor, 'r').readlines()
-        start_coor = open('start_coor', 'w')
-        start_coor_1 = open('start_coor_1', 'w')
-        end_coor = open('end_coor', 'w')
-        end_coor_1 = open('end_coor_1', 'w')
+        start_coor = open(self.tmp_dir + 'start_coor', 'w')
+        start_coor_1 = open(self.tmp_dir + 'start_coor_1', 'w')
+        end_coor = open(self.tmp_dir + 'end_coor', 'w')
+        end_coor_1 = open(self.tmp_dir + 'end_coor_1', 'w')
 
         for line in coor:
             tmp = line.split('\t')
@@ -205,17 +200,17 @@ class Genecount(object):
         # mpileup get the number of spliced reads at circle start position and (start-1) position.
 
         print ("\t=> running mpileup 1 for start positions [%s]" % bamfile)
-        mpileup_start = pysam.mpileup(bamfile, '-f', ref, '-l', 'start_coor_1')
+        mpileup_start = pysam.mpileup(bamfile, '-f', ref, '-l', self.tmp_dir + 'start_coor_1')
 
         print ("\t=> running mpileup 2 for start positions [%s]" % bamfile)
-        mpileup_start_1 = pysam.mpileup(bamfile, '-f', ref, '-l', 'start_coor_2')
+        mpileup_start_1 = pysam.mpileup(bamfile, '-f', ref, '-l', self.tmp_dir + 'start_coor_2')
 
         # mpileup get the number of spliced reads at circle end position and (end+1) position.
         print ("\t=> running mpileup 1 for end positions [%s]" % bamfile)
-        mpileup_end = pysam.mpileup(bamfile, '-f', ref, '-l', 'end_coor_1')
+        mpileup_end = pysam.mpileup(bamfile, '-f', ref, '-l', self.tmp_dir + 'end_coor_1')
 
         print ("\t=> running mpileup 2 for end positions [%s]" % bamfile)
-        mpileup_end_1 = pysam.mpileup(bamfile, '-f', ref, '-l', 'end_coor_2')
+        mpileup_end_1 = pysam.mpileup(bamfile, '-f', ref, '-l', self.tmp_dir + 'end_coor_2')
 
         # get count
 
@@ -226,10 +221,10 @@ class Genecount(object):
         endcount = self.submpileup(self.getreadscount(mpileup_end), self.getreadscount(mpileup_end_1), left=False)
 
         # remove tmp files
-        os.remove('start_coor')
-        os.remove('start_coor_1')
-        os.remove('end_coor')
-        os.remove('end_coor_1')
+        os.remove(self.tmp_dir + 'start_coor')
+        os.remove(self.tmp_dir + 'start_coor_1')
+        os.remove(self.tmp_dir + 'end_coor')
+        os.remove(self.tmp_dir + 'end_coor_1')
 
         print 'Finished linear spliced read counting for %s' % bamfile
 
