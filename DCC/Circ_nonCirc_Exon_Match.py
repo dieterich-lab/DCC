@@ -106,7 +106,9 @@ class CircNonCircExon(object):
                         exon_number[feature.attr['Parent']])
                 except (KeyError, TypeError):
                     print (
-                        'DCC confused with the annotation, cannot determine CircSkip junctions. If gtf file provided, one or two of the features cannot find: transcript_id. If gff file provided, cannot determine Parent feature.')
+                        'DCC confused with the annotation, cannot determine CircSkip junctions. '
+                        'If gtf file provided, one or two of the features cannot find: transcript_id. '
+                        'If gff file provided, cannot determine Parent feature.')
                     rtrn = False
                     break
             new_gtf.write(feature.get_gff_line().strip('\n') + custom_exon_id + '\n')
@@ -114,8 +116,8 @@ class CircNonCircExon(object):
         # Do not print non exon features
         #### MAKE sure only modify and interact with exons!!!!!!!!  FIrst get only exons!!!
         ####  for gff3 files, go for IDs!!!!!!		# Solved
-        return rtrn
         new_gtf.close()
+        return rtrn
 
     def readModifiedgtf(self, modifiedgtf):
         # store a dictionary which custom_exon_id are keys, exon_id are values.
