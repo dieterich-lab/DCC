@@ -18,7 +18,7 @@ class Combine(object):
         """
         Combine coordinates of all samples to one.
         """
-        coordinates = open(self.tmp_dir + 'coordinates', 'w')
+        coordinates = open(self.tmp_dir + 'tmp_coordinates', 'w')
         # coors = set()
         coorsDict = {}  # Use all except the strand and junction type information as key, to uniq the list.
 
@@ -72,7 +72,7 @@ class Combine(object):
                         run_mapto[key].append('0')
                     fout.write('\t'.join(run_mapto[key]) + '\n')
 
-    def deletfile(self, dirt, pattern):
+    def deletefile(self, dirt, pattern):
         # First check whether the input is a list of files or a regular expression string
         if isinstance(pattern, str):
             # A list to store names of deleted files

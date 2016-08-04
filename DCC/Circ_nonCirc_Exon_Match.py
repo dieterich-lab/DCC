@@ -299,7 +299,6 @@ class CircNonCircExon(object):
                 except KeyError:
                     pass
             ExonCounts[key] = counts
-        # print str(key)+'\t'+'\t'.join((counts))
         return ExonCounts
 
     # For circExons, no problem because all the circExons are selected from deduplicates, but those one region has more
@@ -416,7 +415,6 @@ class CircNonCircExon(object):
     def printCirc_Skip_Count(self, circCount, skipJctCount, prefix):
         Circ_Skip_Count = []
         for key in skipJctCount:
-            print str(key)
             try:
                 count = skipJctCount[key]
                 Circ_Skip_Count.append([key.chrom, str(key.start), str(key.end), count, circCount[key], key.strand])

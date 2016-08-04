@@ -62,8 +62,6 @@ class Fix2Chimera(object):
         chimeric_junction.close()
         output.close()
 
-    #	def printduplicated(self,filein,basedon):
-
     def concatenatefiles(self, output_file, *fnames):
         import shutil
         destination = open(output_file, 'wb')
@@ -74,7 +72,7 @@ class Fix2Chimera(object):
                 shutil.copyfileobj(open(fname, 'rb'), destination)
         destination.close()
 
-    def fixation(self, mate1, mate2, joined, output_file):
+    def fixchimerics(self, mate1, mate2, joined, output_file):
         # take chimeric.junction.out from two mate mapping and mate-joined mapping,
         # return fixed chimeric.out.junction
 
@@ -82,13 +80,14 @@ class Fix2Chimera(object):
         self.fixmate2(mate2, mate2 + '.fixed')
 
         # Second, merge two mate files, select duplicates
-        self.concatenatefiles(self.tmp_dir + 'merged', mate1, mate2 + '.fixed')  # does not care if files are empty
-        self.printduplicates(self.tmp_dir + 'merged', self.tmp_dir + 'twochimera', field=10)  # TODO: field is static?
+        self.concatenatefiles(self.tmp_dir + 'tmp_merged', mate1, mate2 + '.fixed')  # does not care if files are empty
+        self.printduplicates(self.tmp_dir + 'tmp_merged', self.tmp_dir + 'tmp_twochimera',
+                             field=10)  # TODO: field is static?
 
-        if not os.path.isfile(self.tmp_dir + 'twochimera'):
+        if not os.path.isfile(self.tmp_dir + 'tmp_twochimera'):
             sys.exit("PE-independent mode selected but all corresponding junctions files are empty!")
 
-        self.concatenatefiles(output_file, self.tmp_dir + 'twochimera', joined)
+        self.concatenatefiles(output_file, self.tmp_dir + 'tmp_twochimera', joined)
 
     def printduplicates(self, merged, duplicates, field=10):
         inputfile = None

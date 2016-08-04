@@ -39,7 +39,7 @@ class CircAnnotate(object):
 
         gtf_exon_sorted = sorted(gtf_exon, key=lambda x: (x[0], int(x[3]), int(x[4])))
         gtf_exon_sorted = ['\t'.join(s) for s in gtf_exon_sorted]
-        new_gtf = open(self.tmp_dir + os.path.basename(gtf_file) + '.exon.sorted', 'w')
+        new_gtf = open(self.tmp_dir + "tmp_" + os.path.basename(gtf_file) + '.exon.sorted', 'w')
         new_gtf.writelines(gtf_exon_sorted)
         new_gtf.close()
         return annotation_tree
