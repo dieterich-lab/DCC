@@ -17,8 +17,8 @@ class CircNonCircExon(object):
         # Get start and end corresponding relationship
         start2end = {}
         circ = open(circcoordinates, 'r')
-        start_bed = open(self.tmp_dir + 'start.bed', 'w')
-        end_bed = open(self.tmp_dir + 'end.bed', 'w')
+        start_bed = open(self.tmp_dir + 'tmp_start.bed', 'w')
+        end_bed = open(self.tmp_dir + 'tmp_end.bed', 'w')
         header = True
         for lin in circ:
             if header:
@@ -44,7 +44,7 @@ class CircNonCircExon(object):
 
     def select_exon(self, gtf_file):
         gtf = HTSeq.GFF_Reader(gtf_file, end_included=True)
-        new_gtf = open(self.tmp_dir + '' + os.path.basename(gtf_file) + '.exon.sorted', 'w')
+        new_gtf = open(self.tmp_dir + 'tmp_' + os.path.basename(gtf_file) + '.exon.sorted', 'w')
         gtf_exon = []
         for feature in gtf:
             # Select only exon line
@@ -135,24 +135,54 @@ class CircNonCircExon(object):
             exon_id2custom_exon_id[feature.attr['exon_id']] = feature.attr['custom_exon_id']
         return exon_id2custom_exon_id
 
-    def intersectcirc(self, circ_file, modified_gtf_file, strand=True):
+    def intersectcirc(self, circ_file, modified_gtf_file, strand=True, isStartBED=True):
         # input the result file of print_start_end_file
-        circ = open(circ_file).readlines()
+        input_bed_file = open(circ_file).readlines()
         exon_gtf_file = HTSeq.GFF_Reader(modified_gtf_file, end_included=True)
-        annotation_tree_modified_exon = IntervalTree()
+        gtf_exon_sorted = IntervalTree()
         for feature in exon_gtf_file:
             row = feature.attr
-            iv = feature.iv
-            annotation_tree_modified_exon.insert(iv, annotation=row)
+            current_bed_interval = feature.iv
+            gtf_exon_sorted.insert(current_bed_interval, annotation=row)
 
-        circExons = {}
-        for line in circ:
-            line_split = line.split('\t')
-            iv = HTSeq.GenomicInterval(line_split[0], int(line_split[1]), int(line_split[2]), line_split[5].strip())
-            custom_exon_id = annotation_tree_modified_exon.intersect(iv, lambda x: x.annotation['custom_exon_id'])
-            if custom_exon_id:
-                circExons.setdefault(iv, set()).add(custom_exon_id)
-        return circExons
+        circ_exon_set = {}
+        for bed_line in input_bed_file:
+            bed_field = bed_line.split('\t')
+            custom_exon_list = []
+
+            # we add 1bp in order for intersect to work correctly
+            # different case for start or end bed file
+            if isStartBED:
+                start = int(bed_field[1])
+                end = int(bed_field[1]) + 1
+            else:
+                start = int(bed_field[1]) - 1
+                end = int(bed_field[1])
+
+            # in order for the intersect to work, we need at least 1bp frame size
+            current_bed_interval = HTSeq.GenomicInterval(bed_field[0],
+                                                         start,
+                                                         end,
+                                                         bed_field[5].strip()
+                                                         )
+
+            # for later processing however, we again need the "0" bp frame window
+            insert_bed_interval = HTSeq.GenomicInterval(bed_field[0],
+                                                        int(bed_field[1]),
+                                                        int(bed_field[2]),
+                                                        bed_field[5].strip()
+                                                        )
+            # extract all customs exons
+            gtf_exon_sorted.intersect(current_bed_interval,
+                                      lambda x: custom_exon_list.append(x.annotation['custom_exon_id'])
+                                      )
+
+            if custom_exon_list:  # if we found one or more custom exons
+                for custom_exon in custom_exon_list:  # go through the list
+                    circ_exon_set.setdefault(insert_bed_interval, set()).add(custom_exon)  # and add them to the set
+
+        # return the filled set
+        return circ_exon_set
 
     def printuniq(self, Infile):
         f = open(Infile, 'r').readlines()
@@ -174,11 +204,12 @@ class CircNonCircExon(object):
         return nonCircExons
 
     def getAdjacent(self, custom_exon_id, start=True, reverse=False):
-        # Need to determine the oder. (Some exon ids increasing from first exon to last of the transcript, irrelevant to strand. But some id
-        # increase with coordinates, in this case, for - strand, exon id will ACTUALLY decrease from 5' to 3'.
-        # First determine whether exon id is reverse oder for - strand.
+        # Need to determine the oder. (Some exon ids increasing from first exon to last of the transcript,
+        # irrelevant to strand. But some id increase with coordinates, in this case, for - strand, exon id will
+        # ACTUALLY decrease from 5' to 3'. First determine whether exon id is reverse oder for - strand.
         #
-        # Need a function to determine order. !!! Solved by sort gtf and assign id to exon based on occuring order. Thus for - strand, order reverse.
+        # Need a function to determine order. !!!
+        # Solved by sort gtf and assign id to exon based on occuring order. Thus for - strand, order reverse.
         #
         if reverse:
             if start:
@@ -207,9 +238,6 @@ class CircNonCircExon(object):
                 except KeyError:
                     parent = feature.attr['Parent']
                     seen[parent] = feature  # GFF3
-                # except KeyError:
-                # 	return None
-                # 	break
                 if parent in seen:
                     # found one transcript with multiple exon, try determine order now
                     if (seen[parent].iv.start - feature.iv.start) * (
@@ -218,11 +246,7 @@ class CircNonCircExon(object):
                         return True
                     else:
                         return False
-                    break
-                    # 	else:
-                    # 		continue
-                    # else:
-                    # 	continue
+
 
     def getIDnum(self, ID):
         # Get the ID number of ID feature of GFF3 file
@@ -326,26 +350,27 @@ class CircNonCircExon(object):
                     pass
 
             # Find the end interval
-            endiv = start2end[
-                key]  # A list, if more than one circ start from the same position, but have different ending.
-            for itv1 in endiv:
-                end = set()
-                # store the circ
-                circ = HTSeq.GenomicInterval(itv1.chrom, key.start, itv1.end, key.strand)
-                # but not every itv have adjacentexon
-                try:
-                    for itv2 in circEndAdjacentExonsIv[itv1]:
-                        try:
-                            end.add(str(itv2.start))  # First base of right adjacent non-circEXON
-                        except AttributeError:
-                            pass
-                except KeyError:
-                    pass
+            endiv = start2end.get(key,
+                                  None)  # A list, if more than one circ start from the same position, but have different ending.
+            if endiv:
+                for itv1 in endiv:
+                    end = set()
+                    # store the circ
+                    circ = HTSeq.GenomicInterval(itv1.chrom, key.start, itv1.end, key.strand)
+                    # but not every itv have adjacentexon
+                    try:
+                        for itv2 in circEndAdjacentExonsIv[itv1]:
+                            try:
+                                end.add(str(itv2.start))  # First base of right adjacent non-circEXON
+                            except AttributeError:
+                                pass
+                    except KeyError:
+                        pass
 
-                if len(start) > 0 and len(end) > 0:
-                    for i in start:
-                        for j in end:
-                            junctions.setdefault(circ, []).append(itv1.chrom + '\t' + str(int(i) + 1) + '\t' + j)
+                    if len(start) > 0 and len(end) > 0:
+                        for i in start:
+                            for j in end:
+                                junctions.setdefault(circ, []).append(itv1.chrom + '\t' + str(int(i) + 1) + '\t' + j)
         return junctions
 
     def readSJ_out_tab(self, SJ_out_tab):
@@ -391,17 +416,23 @@ class CircNonCircExon(object):
     def printCirc_Skip_Count(self, circCount, skipJctCount, prefix):
         Circ_Skip_Count = []
         for key in skipJctCount:
+            print str(key)
             try:
                 count = skipJctCount[key]
                 Circ_Skip_Count.append([key.chrom, str(key.start), str(key.end), count, circCount[key], key.strand])
             except KeyError:
-                Circ_Skip_Count.append(key.chrom, str(key.start), str(key.end), count, '0', key.strand)
-                # pass
+                Circ_Skip_Count.append([key.chrom, str(key.start), str(key.end), count, '0', key.strand])
 
         # sort
         Circ_Skip_Count = sorted(Circ_Skip_Count, key=lambda x: (x[0], int(x[1]), int(x[2])))
 
+        # print "Circ_Skip_Count:" + str(Circ_Skip_Count)
         Circ_Skip_Count_file = open(prefix + 'CircSkipJunction', 'w')
-        Circ_Skip_Count_file.writelines(Circ_Skip_Count)
+
+        for sublist in Circ_Skip_Count:
+            # for list_item in sublist:
+            Circ_Skip_Count_file.write("\t".join(sublist) + "\n")
+
         Circ_Skip_Count_file.close()
+
         return prefix + 'CircSkipJunction'
