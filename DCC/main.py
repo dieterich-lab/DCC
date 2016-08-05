@@ -11,6 +11,8 @@ import string
 import sys
 import time
 
+import pysam
+
 import CombineCounts as Cc
 import circAnnotate as Ca
 import circFilter as Ft
@@ -396,11 +398,19 @@ def main():
 
         if options.refseq:
             linearfiles = []  # A list for .linear file names
+            unsortedBAMS = checkBAMsorting(bamfiles)
 
             # check whether the number of bamfiles is equale to the number of chimeric.junction.out files
             if len(bamfiles) != len(options.Input):
                 logging.error("The number of bam files does not match with chimeric junction files")
                 sys.exit("The number of bam files does not match with chimeric junction files")
+
+            elif len(unsortedBAMS) > 0:
+                logging.error("The following BAM files seem to be not sorted by coordinate or are missing an index:")
+                logging.error(', '.join(unsortedBAMS))
+                print("The following BAM files seem to be not sorted by coordinate or are missing an index:")
+                print(', '.join(unsortedBAMS))
+                sys.exit("Error: not all BAM files are sorted by coordinate or are missing indices")
             else:
                 # For each sample (each bamfile), do one host gene count, and then combine to a single table
 
@@ -645,6 +655,48 @@ def getSJ_out_tab(chimeralist):
 
 def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
     return "".join(random.choice(chars) for _ in range(size))
+
+
+def checkBAMsorting(bamfiles):
+    unsortedBAMs = []
+
+    for file in bamfiles:
+
+        bamfile = pysam.AlignmentFile(file, "rb")
+
+        try:
+            bamfile.check_index()
+        except ValueError:
+            print "BAM file %s has no index (%s.bai is missing)" % (file, file)
+            logging.info("BAM file %s has no index (%s.bai is missing)" % (file, file))
+            unsortedBAMs.append(file)
+            break
+
+        readcount = 0
+        readstarts = []
+
+        # until_eof=False makes sure that we get the actual ordering in the file
+        for read in bamfile.fetch(until_eof=False):
+
+            readcount += 1
+            readstarts.append(read.reference_start)
+
+            # sample only the first 100 reads
+            if readcount > 100:
+                break
+
+        # close the BAM file again
+        bamfile.close()
+
+        # compare sorted with unsorted list
+        if sorted(readstarts) != readstarts:
+            # BAM file is not not sorted
+            unsortedBAMs.append(file)
+
+    # we return a list of unsorted files
+    # -> if empty everything is sorted
+    # -> if not, we have a list of files to look at for the user
+    return unsortedBAMs
 
 
 def wraphostgenecount(bamfile, tmp_dir, circ_coor, ref, countlinearsplicedreads=True):
