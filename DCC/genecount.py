@@ -8,7 +8,6 @@
 # rs: result
 
 import logging
-import os
 import random
 import string
 import sys
@@ -123,8 +122,8 @@ class Genecount(object):
         endcount = self.getreadscount(mpileup_end, countmapped=True)
 
         # remove tmp files
-        os.remove(self.tmp_dir + 'tmp_start_coordinates_' + tid)
-        os.remove(self.tmp_dir + 'tmp_end_coordinates_' + tid)
+        # os.remove(self.tmp_dir + 'tmp_start_coordinates_' + tid)
+        # os.remove(self.tmp_dir + 'tmp_end_coordinates_' + tid)
 
         print 'Finished linear gene expression counting for %s' % bamfile
 
