@@ -260,8 +260,8 @@ def main():
                 lin_split[5] = strand_swap[lin_split[5]]
                 swaped.write("\t".join(lin_split))
             swaped.close()
-            os.remove(options.tmp_dir + "tmp_coordinates")
-            os.rename(options.tmp_dir + "tmp_coordinatesswaped", options.tmp_dir + "tmp_coordinates")
+            # os.remove(options.tmp_dir + "tmp_coordinates")
+            # os.rename(options.tmp_dir + "tmp_coordinatesswaped", options.tmp_dir + "tmp_coordinates")
 
         if options.filter:
             cm.writeouput(options.tmp_dir + "tmp_circCount", res)
@@ -271,8 +271,8 @@ def main():
                 annotation_tree = circann.selectGeneGtf(options.annotate)
                 circann.annotate(options.tmp_dir + "tmp_coordinates", annotation_tree,
                                  options.tmp_dir + "tmp_coordinates_annotated")
-                os.remove(options.tmp_dir + "tmp_coordinates")
-                os.rename(options.tmp_dir + "tmp_coordinates_annotated", options.tmp_dir + "tmp_coordinates")
+                # os.remove(options.tmp_dir + "tmp_coordinates")
+                # os.rename(options.tmp_dir + "tmp_coordinates_annotated", options.tmp_dir + "tmp_coordinates")
         else:
             cm.writeouput(output_circ_counts, res, samplelist, header=True)
             if options.annotate:

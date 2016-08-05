@@ -221,10 +221,10 @@ class Genecount(object):
         endcount = self.submpileup(self.getreadscount(mpileup_end), self.getreadscount(mpileup_end_1), left=False)
 
         # remove tmp files
-        os.remove(self.tmp_dir + 'tmp_start_coor')
-        os.remove(self.tmp_dir + 'tmp_start_coor_1')
-        os.remove(self.tmp_dir + 'tmp_end_coor')
-        os.remove(self.tmp_dir + 'tmp_end_coor_1')
+        # os.remove(self.tmp_dir + 'tmp_start_coor')
+        # os.remove(self.tmp_dir + 'tmp_start_coor_1')
+        # os.remove(self.tmp_dir + 'tmp_end_coor')
+        # os.remove(self.tmp_dir + 'tmp_end_coor_1')
 
         print 'Finished linear spliced read counting for %s' % bamfile
 
