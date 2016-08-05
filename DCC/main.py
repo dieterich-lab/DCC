@@ -561,7 +561,7 @@ def checkjunctionfiles(joinedfnames, mate1filenames, mate2filenames, pairedendin
 
 def logdeleted(deleted):
     for itm in deleted:
-        logging.info("File" + itm + "Deleted!")
+        logging.info("Deleted temporary file " + itm)
 
 
 def mergefiles(output, *fnames):
