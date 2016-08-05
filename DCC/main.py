@@ -106,7 +106,7 @@ def main():
 
     options = parser.parse_args()
 
-    timestr = time.strftime("%Y-%m-%d_%H:%M")
+    timestr = time.strftime("%Y-%m-%d_%H-%M")
 
     logging.basicConfig(filename=os.path.join(options.out_dir, "DCC-" + timestr + ".log"),
                         filemode="w", level=logging.DEBUG,
