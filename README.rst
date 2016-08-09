@@ -12,7 +12,7 @@ Installation
 
 DCC depends on pysam, pandas, numpy, and HTSeq. The installation process of DCC will automatically check for the dependencies and install or update missing (Python) packages. Different installation options are available:
 
-1) Download the latest stable DCC release: `DCC release <https://github.com/dieterich-lab/DCC/releases>`_
+1) Download the latest stable `DCC release <https://github.com/dieterich-lab/DCC/releases>`_
 
 .. code-block:: bash
 
@@ -342,7 +342,7 @@ Execute the test
  # Significant result may be shown in a summary table
  View(test$summary_table)
 
-Visualisation  the significantly host-independently regulated circRNAs
+Visualisation of significantly, host-independently regulated circRNAs
 -----------------------------------------------------------------------
 
 .. code-block:: R
