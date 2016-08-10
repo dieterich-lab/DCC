@@ -22,7 +22,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.4.3',
+    version='0.4.4',
 
     description='Detect circRNAs from chimeras',
     long_description=long_description,
@@ -31,11 +31,13 @@ setup(
     url='https://github.com/dieterich-lab/DCC',
 
     # Author details
-    author='Jun Cheng',
-    author_email='s6juncheng@gmail.com',
 
     maintainer='Tobias Jakobi',
     maintainer_email='Tobias.Jakobi@med.Uni-Heidelberg.DE',
+
+    author='Jun Cheng',
+    author_email='s6juncheng@gmail.com',
+
 
     # Choose your license
     license='GNU General Public License (GPL)',
