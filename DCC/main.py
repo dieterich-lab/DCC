@@ -112,7 +112,6 @@ def main():
                         filemode="w", level=logging.DEBUG,
                         format="%(asctime)s %(message)s")
 
-
     logging.info("DCC %s started" % version)
     print "DCC %s started" % version
     logging.info('DCC command line: ' + ' '.join(sys.argv))
@@ -173,6 +172,8 @@ def main():
         options.cpu_threads = cpu_count
 
     pool = multiprocessing.Pool(processes=options.cpu_threads)
+
+    checkfile(options.annotate, True)
 
     # Make instance
     cm = Cc.Combine(options.tmp_dir)
