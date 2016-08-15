@@ -174,6 +174,8 @@ def main():
     pool = multiprocessing.Pool(processes=options.cpu_threads)
 
     checkfile(options.annotate, True)
+    checkfile(options.rep_file, True)
+
 
     # Make instance
     cm = Cc.Combine(options.tmp_dir)
@@ -731,9 +733,9 @@ def wrapfindcirc(files, tmp_dir, endTol, maxL, minL, strand=True, pairdendindepe
     print "started circRNA detection from file %s" % files
 
     if same:
-        circfilename = tmp_dir + "tmp_" + os.path.basename(files) + indx + ".circRNA"
+        circfilename = files + indx + ".circRNA"
     else:
-        circfilename = tmp_dir + "tmp_" + os.path.basename(files) + ".circRNA"
+        circfilename = files + ".circRNA"
     if pairdendindependent:
         f.printcircline(files, tmp_dir + "tmp_printcirclines." + indx)
 
