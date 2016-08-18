@@ -21,6 +21,7 @@ class CircNonCircExon(object):
         end_bed = open(self.tmp_dir + 'tmp_end.bed', 'w')
         header = True
         for lin in circ:
+            lin = lin.rstrip()
             if header:
                 header = False
             else:
@@ -31,12 +32,12 @@ class CircNonCircExon(object):
                 end_bed.write(
                     lin_split[0] + '\t' + lin_split[2] + '\t' + lin_split[2] + '\t' + '.' + '\t' + '.' + '\t' +
                     lin_split[5] + '\n')
-                ### Here is only for strand data, because here store GenomicInterval object to
-                #  guide the matching of circStartAdjacentExon with circEndAdjacentExon,
-                # If the data is non-strand, the matching will suffer from uncertain strand ***###
+                # Here is only for strand data, because here store GenomicInterval object to
+                # guide the matching of circStartAdjacentExon with circEndAdjacentExon,
+                # If the data is non-strand, the matching will suffer from uncertain strand
                 start2end.setdefault(
-                    HTSeq.GenomicInterval(lin_split[0], int(lin_split[1]), int(lin_split[1]), lin_split[5]), []).append(
-                    HTSeq.GenomicInterval(lin_split[0], int(lin_split[2]), int(lin_split[2]), lin_split[5]))
+                    HTSeq.GenomicInterval(lin_split[0], int(lin_split[1]), int(lin_split[1]), str(lin_split[5])), []).append(
+                    HTSeq.GenomicInterval(lin_split[0], int(lin_split[2]), int(lin_split[2]), str(lin_split[5])))
         circ.close()
         start_bed.close()
         end_bed.close()
