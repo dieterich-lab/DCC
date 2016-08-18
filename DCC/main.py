@@ -108,14 +108,6 @@ def main():
 
     timestr = time.strftime("%Y-%m-%d_%H%M")
 
-    logging.basicConfig(filename=os.path.join(options.out_dir, "DCC-" + timestr + ".log"),
-                        filemode="w", level=logging.DEBUG,
-                        format="%(asctime)s %(message)s")
-
-    logging.info("DCC %s started" % version)
-    print "DCC %s started" % version
-    logging.info('DCC command line: ' + ' '.join(sys.argv))
-
     if not os.path.isdir(options.out_dir):
         try:
             os.makedirs(options.out_dir)
@@ -137,6 +129,14 @@ def main():
             exit(-1)
     else:
         print "Temporary folder %s already exists, reusing" % options.tmp_dir
+
+    logging.basicConfig(filename=os.path.join(options.out_dir, "DCC-" + timestr + ".log"),
+                        filemode="w", level=logging.DEBUG,
+                        format="%(asctime)s %(message)s")
+
+    logging.info("DCC %s started" % version)
+    print "DCC %s started" % version
+    logging.info('DCC command line: ' + ' '.join(sys.argv))
 
     # Get input file names
     filenames = [os.path.basename(name) for name in options.Input]
