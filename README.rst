@@ -26,7 +26,7 @@ DCC depends on pysam, pandas, numpy, and HTSeq. The installation process of DCC 
 
 .. code-block:: bash
 
-  $ git clone git@github.com:dieterich-lab/DCC.git
+  $ git clone https://github.com/dieterich-lab/DCC.git
 
   $ cd DCC
 
