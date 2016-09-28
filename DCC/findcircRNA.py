@@ -151,9 +151,15 @@ class Findcirc(object):
     def findcirc(self, Chim_junc, output, strand=True):
         junctionfile = open(Chim_junc, 'r')
         outfile = open(output, 'w')
-
+        linecnt = 1
         for line in junctionfile:
             L = line.split('\t')
+            linecnt = linecnt + 1
+
+            if len(L) < 14:
+                print ("WARNING: File " + str(Chim_junc) + ", line " + str(linecnt) + " does not contain all features.")
+                print ("WARNING: " + str(Chim_junc) + " is probably corrupt.")
+
             if int(L[6]) >= 0 and L[0] == L[3] and L[2] == L[5] and (
                         (L[2] == '-' and int(L[4]) > int(L[1]) and self.minL < (int(L[4]) - int(L[1])) < self.maxL) or (
                                         L[2] == '+' and int(L[1]) > int(L[4]) and self.minL < (
