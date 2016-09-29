@@ -173,8 +173,10 @@ def main():
 
     pool = multiprocessing.Pool(processes=options.cpu_threads)
 
-    checkfile(options.annotate, True)
-    checkfile(options.rep_file, True)
+    if options.annotate is not None:
+        checkfile(options.annotate, True)
+    if options.rep_file is not None:
+        checkfile(options.rep_file, True)
 
 
     # Make instance
