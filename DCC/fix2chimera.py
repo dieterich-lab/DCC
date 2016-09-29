@@ -45,8 +45,19 @@ class Fix2Chimera(object):
             else:
                 return str(3 - int(junctiontype))
 
+        linecnt = 1
         output = open(output_file, 'w')
         for line in chimeric_junction:
+
+            # check if the row has all fields
+            if len(line) < 14:
+                print ("WARNING: File " + str(chimeric_junction_mate2) + ", line " + str(linecnt)
+                       + " does not contain all features.")
+                print ("WARNING: " + str(chimeric_junction_mate2) + " is probably corrupt.")
+                print ("WARNING: Offending line: " + str(line))
+
+            linecnt += linecnt
+
             line_split = line.split('\t')
             if line_split[2] == '+':
                 line_split[2] = '-'
