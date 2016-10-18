@@ -343,7 +343,9 @@ def main():
         if not rep_file is None:
             logging.info("Filter by non repetitive region")
             filt.filter_nonrep(rep_file, indx0, count0)
-
+        else:
+            filt.dummy_filter(indx0, count0)
+            
         if not options.chrM and not options.filterbygene:
             filt.sortOutput(options.tmp_dir + "tmp_unsortedWithChrM", output_circ_counts,
                             output_coordinates, samplelist)

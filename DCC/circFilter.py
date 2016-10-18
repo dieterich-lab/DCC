@@ -110,6 +110,11 @@ class Circfilter(object):
         # write the result
         np.savetxt(self.tmp_dir + 'tmp_unsortedWithChrM', nonrep, delimiter='\t', newline='\n', fmt='%s')
 
+    def dummy_filter(self, indx0, count0):
+        nonrep = np.column_stack((indx0, count0))
+        # write the result
+        np.savetxt(self.tmp_dir + 'tmp_unsortedWithChrM', nonrep, delimiter='\t', newline='\n', fmt='%s')
+
 
     def removeChrM(self, withChrM):
         print 'Remove ChrM'
