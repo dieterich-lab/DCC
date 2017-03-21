@@ -540,9 +540,12 @@ def checkjunctionfiles(joinedfnames, mate1filenames, mate2filenames, pairedendin
 
             if mate1empty or mate2empty or joinedempty:
                 skipcirc = True
-
+                logging.warning('One of the input junctions files is empty.')
+                print('One of the input junctions files is empty.')
         else:
             skipcirc = True
+            logging.warning('Input file lists have different length.')
+            print('Input file lists have different length.')
 
         if skipcirc:
             logging.warning('Junction files seem empty, skipping circRNA detection module.')
