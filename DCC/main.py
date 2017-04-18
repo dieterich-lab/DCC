@@ -197,6 +197,11 @@ def main():
 
         options.detect = False
 
+    if options.bam and (len(options.bam) != len(options.mate1)):
+        logging.info("BAM file list is shorter than mate list. Maybe you forgot the @ (@file.list)?")
+        print("BAM file list is shorter than mate list. Maybe you forgot the @ (@file.list)?")
+        exit(-1)
+
     if options.detect:
         logging.info("Starting to detect circRNAs")
         if options.strand:
@@ -544,8 +549,12 @@ def checkjunctionfiles(joinedfnames, mate1filenames, mate2filenames, pairedendin
                 print('One of the input junctions files is empty.')
         else:
             skipcirc = True
-            logging.warning('Input file lists have different length.')
-            print('Input file lists have different length.')
+
+            logging.warning('Input file lists have different length (mate 1 %d, mate 2 %d, joined %d).' % (
+            len(mate1filenames), len(mate2filenames), len(joinedfnames)))
+
+            print('Input file lists have different length (mate 1 %d, mate 2 %d, joined %d).' % (
+            len(mate1filenames), len(mate2filenames), len(joinedfnames)))
 
         if skipcirc:
             logging.warning('Junction files seem empty, skipping circRNA detection module.')
