@@ -691,26 +691,29 @@ def checkBAMsorting(bamfiles):
             unsortedBAMs.append(file)
             break
 
-        readcount = 0
-        readstarts = []
+        # Checking fort sorted reads is disabled to to issue #38:
+        # https://github.com/dieterich-lab/DCC/issues/38
 
-        # until_eof=False makes sure that we get the actual ordering in the file
-        for read in bamfile.fetch(until_eof=False):
-
-            readcount += 1
-            readstarts.append(read.reference_start)
-
-            # sample only the first 100 reads
-            if readcount > 100:
-                break
-
-        # close the BAM file again
-        bamfile.close()
-
-        # compare sorted with unsorted list
-        if sorted(readstarts) != readstarts:
-            # BAM file is not not sorted
-            unsortedBAMs.append(file)
+        # readcount = 0
+        # readstarts = []
+        #
+        # # until_eof=False makes sure that we get the actual ordering in the file
+        # for read in bamfile.fetch(until_eof=False):
+        #
+        #     readcount += 1
+        #     readstarts.append(read.reference_start)
+        #
+        #     # sample only the first 100 reads
+        #     if readcount > 100:
+        #         break
+        #
+        # # close the BAM file again
+        # bamfile.close()
+        #
+        # # compare sorted with unsorted list
+        # if sorted(readstarts) != readstarts:
+        #     # BAM file is not not sorted
+        #     unsortedBAMs.append(file)
 
     # we return a list of unsorted files
     # -> if empty everything is sorted
