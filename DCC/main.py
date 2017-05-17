@@ -197,7 +197,7 @@ def main():
 
         options.detect = False
 
-    if options.bam and (len(options.bam) != len(options.mate1)):
+    if options.bam and options.mate1 and (len(options.bam) != len(options.mate1)):
         logging.info("BAM file list is shorter than mate list. Maybe you forgot the @ (@file.list)?")
         print("BAM file list is shorter than mate list. Maybe you forgot the @ (@file.list)?")
         exit(-1)
