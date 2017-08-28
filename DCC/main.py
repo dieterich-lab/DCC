@@ -178,7 +178,6 @@ def main():
     if options.rep_file is not None:
         checkfile(options.rep_file, True)
 
-
     # Make instance
     cm = Cc.Combine(options.tmp_dir)
     circann = Ca.CircAnnotate(tmp_dir=options.tmp_dir, strand=options.strand)
@@ -345,7 +344,7 @@ def main():
         # nonrep_left,nonrep_right = filt.nonrep_filter("_tmp_DCC/tmp_left","_tmp_DCC/tmp_right",rep_file)
         # filt.intersectLeftandRightRegions(nonrep_left,nonrep_right,indx0,count0)
 
-        if not rep_file is None:
+        if rep_file is not None:
             logging.info("Filter by non repetitive region")
             filt.filter_nonrep(rep_file, indx0, count0)
         else:
