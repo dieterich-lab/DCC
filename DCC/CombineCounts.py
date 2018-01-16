@@ -140,10 +140,10 @@ class Combine(object):
                     #    pass
                     # elif len(line_split) != 5:
                     #    sys.exit("Number of fields in the individual count file is not correct.")
-                    res.setdefault(line_nr, ['\t'.join(line_split[:3])]).append(line_split[col - 1])
+                    res.setdefault(line_nr, ['\t'.join(line_split[:3] + line_split[5])]).append(line_split[col - 1])
 
                 else:  # input are host gene counts
-                    res.setdefault(line_nr, ['\t'.join(line_split[:3])]).append(line_split[col - 1])
+                    res.setdefault(line_nr, ['\t'.join(line_split[:3] + line_split[5])]).append(line_split[col - 1])
 
         return res
 
