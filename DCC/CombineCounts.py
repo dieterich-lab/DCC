@@ -151,7 +151,7 @@ class Combine(object):
         # Sample list is a string with sample names seperated by \t.
         outfile = open(output, 'w')
         if header:
-            outfile.write('Chr\tStart\tEnd\t' + samplelist + '\n')
+            outfile.write('Chr\tStart\tEnd\tStrand\t' + samplelist + '\n')
         for line_nr in sorted(res):
             outfile.write("%s\n" % '\t'.join(res[line_nr]))
         outfile.close()

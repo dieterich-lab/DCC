@@ -370,7 +370,10 @@ class CircNonCircExon(object):
                     if len(start) > 0 and len(end) > 0:
                         for i in start:
                             for j in end:
-                                junctions.setdefault(circ, []).append(itv1.chrom + '\t' + str(int(i) + 1) + '\t' + j)
+                                junctions.setdefault(circ, []).append(itv1.chrom + '\t' +
+                                                                      str(int(i) + 1) + '\t'
+                                                                      + j + "\t" +
+                                                                      key.strand)
         return junctions
 
     def readSJ_out_tab(self, SJ_out_tab):
@@ -394,7 +397,12 @@ class CircNonCircExon(object):
             count = []
             for jct in junctions:
                 try:
-                    count.append(jct.split('\t')[0] + ':' + jct.split('\t')[1] + '-' + jct.split('\t')[2] + ':' +
+                    count.append(jct.split('\t')[0] +
+                                 ':' +
+                                 jct.split('\t')[1] +
+                                 '-' + jct.split('\t')[2] +
+                                 ':' + jct.split('\t')[3] +
+                                 ':' +
                                  junctionReadCount[jct])
                 except KeyError:
                     pass
