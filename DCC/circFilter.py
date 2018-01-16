@@ -45,9 +45,9 @@ class Circfilter(object):
             # row_indx = [str(itm) for itm in fields[0:4]]
             # print row_indx
             try:
-                row_count = [int(itm) for itm in fields[3:]]
+                row_count = [int(itm) for itm in fields[4:]]
             except ValueError:
-                row_count = [float(itm) for itm in fields[3:]]
+                row_count = [float(itm) for itm in fields[4:]]
             count.append(row_count)
             # indx.append(row_indx)
 
