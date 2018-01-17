@@ -420,7 +420,7 @@ class CircNonCircExon(object):
                 count = skipJctCount[key]
                 Circ_Skip_Count.append([key.chrom, str(key.start), str(key.end), count, circCount[key], key.strand])
             except KeyError:
-                Circ_Skip_Count.append([key.chrom, str(key.start), str(key.end), count, '0', key.strand])
+                pass
 
         # sort
         Circ_Skip_Count = sorted(Circ_Skip_Count, key=lambda x: (x[0], int(x[1]), int(x[2])))
