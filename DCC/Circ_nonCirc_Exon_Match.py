@@ -370,7 +370,9 @@ class CircNonCircExon(object):
                     if len(start) > 0 and len(end) > 0:
                         for i in start:
                             for j in end:
-                                junctions.setdefault(circ, []).append(itv1.chrom + '\t' + str(int(i) + 1) + '\t' + j)
+                                junctions.setdefault(circ, []).append(itv1.chrom + '\t' +
+                                                                      str(int(i) + 1) + '\t'
+                                                                      + j + "\t" + key.strand)
         return junctions
 
     def readSJ_out_tab(self, SJ_out_tab):
@@ -379,8 +381,20 @@ class CircNonCircExon(object):
         try:
             sj = open(SJ_out_tab, 'r')
             for lin in sj:
+
                 lin_split = lin.split('\t')
-                junctionReadCount[lin_split[0] + '\t' + lin_split[1] + '\t' + lin_split[2]] = lin_split[6]
+
+                if lin_split[3] == "1":
+                    strand = "+"
+                elif lin_split[3] == "2":
+                    strand = "-"
+                else:
+                    strand = "?"
+
+                junctionReadCount[lin_split[0] + '\t' +
+                                  lin_split[1] + '\t' +
+                                  lin_split[2] + '\t' +
+                                  strand] = lin_split[6]
             sj.close()
         except IOError:
             print 'Do you have SJ.out.tab files in your sample folder? DCC cannot find it.'
@@ -394,7 +408,10 @@ class CircNonCircExon(object):
             count = []
             for jct in junctions:
                 try:
-                    count.append(jct.split('\t')[0] + ':' + jct.split('\t')[1] + '-' + jct.split('\t')[2] + ':' +
+                    count.append(jct.split('\t')[0] + ':' +
+                                 jct.split('\t')[1] + '-' +
+                                 jct.split('\t')[2] +
+                                 jct.split('\t')[3] + ':' +
                                  junctionReadCount[jct])
                 except KeyError:
                     pass
@@ -420,7 +437,7 @@ class CircNonCircExon(object):
                 count = skipJctCount[key]
                 Circ_Skip_Count.append([key.chrom, str(key.start), str(key.end), count, circCount[key], key.strand])
             except KeyError:
-                Circ_Skip_Count.append([key.chrom, str(key.start), str(key.end), count, '0', key.strand])
+                pass
 
         # sort
         Circ_Skip_Count = sorted(Circ_Skip_Count, key=lambda x: (x[0], int(x[1]), int(x[2])))
