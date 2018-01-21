@@ -22,7 +22,7 @@ from fix2chimera import Fix2Chimera
 
 
 def main():
-    version = "0.4.5"
+    version = "0.4.6"
 
     parser = argparse.ArgumentParser(prog="DCC", formatter_class=argparse.RawDescriptionHelpFormatter,
                                      fromfile_prefix_chars="@",
