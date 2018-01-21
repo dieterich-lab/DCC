@@ -440,7 +440,7 @@ def main():
 
             # Combine all to a individual sample host gene count to a single table
             res = cm.combine(linearfiles, col=6, circ=False)
-            cm.writeouput(output_linear_counts, res, samplelist, header=True)
+            cm.writeouput_linear(output_linear_counts, res, samplelist, header=True)
             logging.info("Finished combine individual linear gene expression counts")
 
             if not options.temp:
