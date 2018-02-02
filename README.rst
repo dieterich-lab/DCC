@@ -243,7 +243,7 @@ After performing all preparation steps DCC can now be started:
         -Pi \ # run in paired independent mode, i.e. use -mt1 and -mt2
         -F \ # filter the circular RNA candidate regions
         -M \ # filter out candidates from mitochondrial chromosomes
-        -Nr 5 6 \ minimum number of replicates the candidate is showing in [1] and minimum count in the replicate [2]
+        -Nr 5 6 \ minimum count in one replicate [1] and number of replicates the candidate has to be detected in [2]
         -fg \ # candidates are not allowed to span more than one gene
         -G \ # also run host gene expression 
         -A [Reference].fa \ # name of the fasta genome reference file; must be indexed, i.e. a .fai file must be present
