@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python2
 
 # If paire end data are used, this module fix the rolling circRNA could not detect by single run problem.
 
