@@ -87,7 +87,7 @@ setup(
         'pandas>=0.20.2'
     ],
 
-    python_requires='==2.7',
+    python_requires='<3',
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
