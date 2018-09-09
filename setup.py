@@ -80,9 +80,8 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-        'pysam == 0.13.0',
-        'HTSeq>=0.10.0',
-        'pysam>=0.11.2.2',
+        'HTSeq>=0.11.0',
+        'pysam >= 0.13',
         'numpy>=1.14.5',
         'pandas>=0.20.2'
     ],
