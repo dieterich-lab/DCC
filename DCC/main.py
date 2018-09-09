@@ -139,14 +139,14 @@ def main():
     logging.info('DCC command line: ' + ' '.join(sys.argv))
 
     # Get input file names
-    filenames = []
 
-    for name in options.Input:
-        # print os.path.basename(name)
-        if name != "":
-            filenames.append(name)
+    options.Input = remove_empty_lines(options.Input)
+    options.mate1 = remove_empty_lines(options.mate1)
+    options.mate2 = remove_empty_lines(options.mate2)
+    options.bam = remove_empty_lines(options.bam)
 
-    options.Input = filenames
+    filenames = [os.path.basename(name) for name in options.Input]
+
     samplelist = "\t".join(filenames)
 
     # make sure the user supplied path variables have a trailing /
@@ -523,6 +523,14 @@ def checkfile(filename, previousstate):
         return True
     return previousstate
 
+
+def remove_empty_lines(namelist):
+    return_list = []
+    for name in namelist:
+        # print os.path.basename(name)
+        if name != "":
+            return_list.append(name)
+    return return_list
 
 def checkjunctionfiles(joinedfnames, mate1filenames, mate2filenames, pairedendindependent):
     # Check if the junctions files have actually any content
