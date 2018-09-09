@@ -139,7 +139,14 @@ def main():
     logging.info('DCC command line: ' + ' '.join(sys.argv))
 
     # Get input file names
-    filenames = [os.path.basename(name) for name in options.Input]
+    filenames = []
+
+    for name in options.Input:
+        # print os.path.basename(name)
+        if name != "":
+            filenames.append(name)
+
+    options.Input = filenames
     samplelist = "\t".join(filenames)
 
     # make sure the user supplied path variables have a trailing /
