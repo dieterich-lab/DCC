@@ -77,7 +77,7 @@ class Circfilter(object):
         # splicing the passed filtering rows
         if len(sel) == 0:
             sys.exit("No circRNA passed the expression threshold filtering.")
-        return count[[sel]], indx[[sel]]
+        return count[sel], indx[sel]
 
     def read_rep_region(self, regionfile):
         regions = HTSeq.GFF_Reader(regionfile, end_included=True)
