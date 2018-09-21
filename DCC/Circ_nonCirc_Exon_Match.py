@@ -194,7 +194,7 @@ class CircNonCircExon(object):
         for lin in f:
             lin_split = lin.split('\t')
             if keys.count(lin_split[0] + '\t' + lin_split[1] + '\t' + lin_split[2]) == 1:
-                print lin.strip('\n')
+                print((lin.strip('\n')))
 
     def readgtf(self, gtf_file):
         # store nonCircExons based on transcript_id and exon_number with all its annotations from different transcripts
@@ -275,7 +275,7 @@ class CircNonCircExon(object):
     def findcircAdjacent(self, circExons, Custom_exon_id2Iv, Iv2Custom_exon_id, start=True):
         circAdjacentExons = {}
         circAdjacentExonsIv = {}
-        for key in circExons.keys():
+        for key in list(circExons.keys()):
             for ids in circExons[key]:
                 try:
                     interval = Custom_exon_id2Iv[self.getAdjacent(ids, start=start)]
@@ -292,7 +292,7 @@ class CircNonCircExon(object):
         # Print the counts of circexons and adjacentexons
         # Exons: dictionaries with intervals as key, custom_exon_id as values
         ExonCounts = {}
-        for key in Exons.keys():
+        for key in list(Exons.keys()):
             counts = []
             for ids in Exons[key]:  # If for circAdjacentExons, ids here is a list
                 try:
@@ -397,7 +397,7 @@ class CircNonCircExon(object):
                                   strand] = lin_split[6]
             sj.close()
         except IOError:
-            print 'Do you have SJ.out.tab files in your sample folder? DCC cannot find it.'
+            print('Do you have SJ.out.tab files in your sample folder? DCC cannot find it.')
         return junctionReadCount
 
     def getskipjunctionCount(self, exonskipjunctions, junctionReadCount):

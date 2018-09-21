@@ -76,7 +76,7 @@ class Findcirc(object):
             if reads.count(read) == 2:
                 dup.write(lines[indx])
             elif reads.count(read) > 2:
-                print 'Read %s has more than 2 count.' % read
+                print(('Read %s has more than 2 count.' % read))
                 try:
                     logging.warning('Read %s has more than 2 count.' % read)
                 except NameError:
@@ -157,8 +157,8 @@ class Findcirc(object):
             linecnt = linecnt + 1
 
             if len(L) < 14:
-                print ("WARNING: File " + str(Chim_junc) + ", line " + str(linecnt) + " does not contain all features.")
-                print ("WARNING: " + str(Chim_junc) + " is probably corrupt.")
+                print(("WARNING: File " + str(Chim_junc) + ", line " + str(linecnt) + " does not contain all features."))
+                print(("WARNING: " + str(Chim_junc) + " is probably corrupt."))
 
             if int(L[6]) >= 0 and L[0] == L[3] and L[2] == L[5] and (
                         (L[2] == '-' and int(L[4]) > int(L[1]) and self.minL < (int(L[4]) - int(L[1])) < self.maxL) or (
@@ -214,7 +214,7 @@ class Sort(object):
             elif not strand:
                 circs = (itm[0], itm[1], itm[2])
             else:
-                print "Please specify correct strand information."
+                print("Please specify correct strand information.")
             cnt[circs] += 1
             itm.append(str(cnt[circs]))
             # tmp_count.append( [itm[0],itm[1],itm[2],itm[3],itm[7],itm[4],itm[5],itm[6]] )
