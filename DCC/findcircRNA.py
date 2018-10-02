@@ -1,5 +1,3 @@
-#!/usr/bin/env python2
-
 import collections
 import logging
 import re

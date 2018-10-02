@@ -13,12 +13,12 @@ import time
 
 import pysam
 
-import CombineCounts as Cc
-import circAnnotate as Ca
-import circFilter as Ft
-import findcircRNA as Fc
-import genecount as Gc
-from fix2chimera import Fix2Chimera
+from . import CombineCounts as Cc
+from . import circAnnotate as Ca
+from . import circFilter as Ft
+from . import findcircRNA as Fc
+from . import genecount as Gc
+from .fix2chimera import Fix2Chimera
 
 
 def main():

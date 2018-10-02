@@ -9,7 +9,7 @@ import warnings
 
 import HTSeq
 
-from IntervalTree import IntervalTree
+from .IntervalTree import IntervalTree
 
 
 class CircAnnotate(object):

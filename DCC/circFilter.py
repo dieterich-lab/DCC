@@ -4,7 +4,7 @@ import sys
 
 import HTSeq
 
-from IntervalTree import IntervalTree
+from .IntervalTree import IntervalTree
 
 
 ##########################
