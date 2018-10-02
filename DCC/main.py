@@ -630,7 +630,7 @@ def convertjunctionfile2bamfile(junctionfilelist):
 
 # CircSkip junctions
 def findCircSkipJunction(CircCoordinates, tmp_dir, gtffile, circfiles, SJ_out_tab, strand=True, same=False):
-    from Circ_nonCirc_Exon_Match import CircNonCircExon
+    from .Circ_nonCirc_Exon_Match import CircNonCircExon
     CircSkipfiles = []
     CCEM = CircNonCircExon(tmp_dir)
     # Modify gtf file
