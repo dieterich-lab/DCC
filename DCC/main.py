@@ -143,7 +143,6 @@ def main():
     options.Input = remove_empty_lines(options.Input)
     options.mate1 = remove_empty_lines(options.mate1)
     options.mate2 = remove_empty_lines(options.mate2)
-    options.bam = remove_empty_lines(options.bam)
 
     filenames = [os.path.basename(name) for name in options.Input]
 
@@ -408,7 +407,7 @@ def main():
                 print "Could not guess BAM file names, please provides them manually via -B"
                 logging.info("Could not guess BAM file names, please provides them manually via -B")
         else:
-            bamfiles = options.bam
+            bamfiles = remove_empty_lines(options.bam)
 
         if not options.refseq:
             print "Please provide reference sequence, program will not count host gene expression"
