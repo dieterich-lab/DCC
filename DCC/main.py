@@ -141,8 +141,17 @@ def main():
     # Get input file names
 
     options.Input = remove_empty_lines(options.Input)
-    options.mate1 = remove_empty_lines(options.mate1)
-    options.mate2 = remove_empty_lines(options.mate2)
+
+    if (options.mate1 and not options.mate1) or (options.mate2 and not options.mate1) and options.pairedendindependent:
+        print "Only one mate data file supplied; check if both, -mt1 and -mt2 are specified."
+        logging.info("Only one mate data file supplied; check if both, -mt1 and -mt2 are specified.")
+        exit(-1)
+
+    if options.mate1:
+        options.mate1 = remove_empty_lines(options.mate1)
+
+    if options.mate2:
+        options.mate2 = remove_empty_lines(options.mate2)
 
     filenames = [os.path.basename(name) for name in options.Input]
 
