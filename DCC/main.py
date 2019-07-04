@@ -446,10 +446,15 @@ def main():
                                           ref=options.refseq,
                                           countlinearsplicedreads=False), bamfiles)
                 else:
-                    linearfiles = pool.map(
+                    if options.detect:
+                        linearfiles = pool.map(
                         functools.partial(wraphostgenecount, tmp_dir=options.tmp_dir, circ_coor=output_circ_counts,
                                           ref=options.refseq,
                                           countlinearsplicedreads=False), bamfiles)
+                    else:
+                        logging.error("Linear gene counting only works if circRNA detection is enabled via -D.")
+                        print("Linear gene counting only works if circRNA detection is enabled via -D.")
+                        sys.exit("Please restart DCC with the -D flag.")
 
                 logging.info("Finished linear gene expression counting, start to combine individual sample counts")
 
