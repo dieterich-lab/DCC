@@ -216,6 +216,17 @@ def main():
         print("BAM file list is shorter than mate list. Maybe you forgot the @ (@file.list)?")
         exit(-1)
 
+    if options.bam and len(options.bam) == 1:
+
+        f = os.popen('file -bi '+str(options.bam[0]), 'r')
+
+        if f.read().startswith('text'):
+            logging.info("Did you maybe you forgot the @ (-B @bam_file) parameter for the BAM list file "
+                         "(you specified only one file, but it is ASCII not binary)")
+            print("Did you maybe you forgot the @ (-B @bam_file) parameter for the BAM list file "
+                         "(you specified only one file, but it is ASCII not binary)")
+            exit(-1)
+
     if options.detect:
         logging.info("Starting to detect circRNAs")
         if options.strand:
