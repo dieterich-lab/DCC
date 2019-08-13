@@ -82,8 +82,8 @@ setup(
     install_requires=[
         'HTSeq>=0.11.0',
         'pysam >= 0.13',
-        'numpy>=1.14.5',
-        'pandas>=0.20.2'
+        'numpy<=1.17.0',
+        'pandas==0.23.4'
     ],
 
     python_requires='<3',
