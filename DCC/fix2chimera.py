@@ -48,7 +48,7 @@ class Fix2Chimera(object):
         linecnt = 1
         output = open(output_file, 'w')
         for line in chimeric_junction:
-
+            line = line.rstrip()
             line_split = line.split('\t')
 
             # check if the row has all fields
@@ -69,7 +69,7 @@ class Fix2Chimera(object):
             line_split[6] = modify_junctiontype(line_split[6])
             output.write('\t'.join((line_split[0], line_split[4], line_split[2], line_split[3], line_split[1],
                                     line_split[5], line_split[6], line_split[7], line_split[8], line_split[9],
-                                    line_split[10], line_split[11], line_split[12], line_split[13])))
+                                    line_split[10], line_split[11], line_split[12], line_split[13]))+'\n')
 
         chimeric_junction.close()
         output.close()
