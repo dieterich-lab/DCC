@@ -51,6 +51,8 @@ class Fix2Chimera(object):
             line = line.rstrip()
             line_split = line.split('\t')
 
+            if line_split[0] == "chr_donorA":
+                continue
             # check if the row has all fields
             if len(line_split) < 14:
                 print ("WARNING: File " + str(chimeric_junction_mate2) + ", line " + str(linecnt)
