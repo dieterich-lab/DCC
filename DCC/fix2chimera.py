@@ -58,7 +58,7 @@ class Fix2Chimera(object):
                 print ("WARNING: " + str(chimeric_junction_mate2) + " is probably corrupt.")
                 print ("WARNING: Offending line: " + str(line))
 
-            linecnt += linecnt
+            linecnt += 1
 
             if line_split[2] == '+':
                 line_split[2] = '-'
