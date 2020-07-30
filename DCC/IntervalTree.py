@@ -36,7 +36,7 @@ class IntervalTree(object):
             # use the intersect method of IntervalNode class, need make this function aware of strand
 
     def traverse(self, func):
-        for item in self.chroms.itervalues():
+        for item in self.chroms.values():
             item.traverse(func)
 
 

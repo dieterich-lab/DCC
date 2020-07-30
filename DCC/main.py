@@ -22,7 +22,7 @@ from fix2chimera import Fix2Chimera
 
 
 def main():
-    version = "0.4.8"
+    version = "0.5.0"
 
     parser = argparse.ArgumentParser(prog="DCC", formatter_class=argparse.RawDescriptionHelpFormatter,
                                      fromfile_prefix_chars="@",
@@ -49,7 +49,7 @@ def main():
                        help="Must be enabled for stranded libraries, aka 'fr-secondstrand' [default: False]")
     group.add_argument("-N", "--nonstrand", action="store_false", dest="strand", default=True,
                        help="The library is non-stranded [default stranded]")
-    group.add_argument("-E", "--endTol", dest="endTol", type=int, default=5, choices=range(0, 10),
+    group.add_argument("-E", "--endTol", dest="endTol", type=int, default=5, choices=list(range(0, 10)),
                        help="Maximum base pair tolerance of reads extending over junction sites [default: 5]")
     group.add_argument("-m", "--maximum", dest="max", type=int, default=1000000,
                        help="The maximum length of candidate circRNAs (including introns) [default: 1000000]")
@@ -112,12 +112,12 @@ def main():
         try:
             os.makedirs(options.out_dir)
         except OSError:
-            print "Could not create output folder %s" % options.out_dir
+            print("Could not create output folder %s" % options.out_dir)
             logging.info("Could not create output folder %s" % options.out_dir)
 
             exit(-1)
     else:
-        print "Output folder %s already exists, reusing" % options.out_dir
+        print("Output folder %s already exists, reusing" % options.out_dir)
 
     # create temporary directory if not existing
 
@@ -125,17 +125,17 @@ def main():
         try:
             os.makedirs(options.tmp_dir)
         except OSError:
-            print "Could not create temporary folder %s" % options.tmp_dir
+            print("Could not create temporary folder %s" % options.tmp_dir)
             exit(-1)
     else:
-        print "Temporary folder %s already exists, reusing" % options.tmp_dir
+        print("Temporary folder %s already exists, reusing" % options.tmp_dir)
 
     logging.basicConfig(filename=os.path.join(options.out_dir, "DCC-" + timestr + ".log"),
                         filemode="w", level=logging.DEBUG,
                         format="%(asctime)s %(message)s")
 
     logging.info("DCC %s started" % version)
-    print "DCC %s started" % version
+    print("DCC %s started" % version)
     logging.info('DCC command line: ' + ' '.join(sys.argv))
 
     # Get input file names
@@ -143,7 +143,7 @@ def main():
     options.Input = remove_empty_lines(options.Input)
 
     if (options.mate1 and not options.mate1) or (options.mate2 and not options.mate1) and options.pairedendindependent:
-        print "Only one mate data file supplied; check if both, -mt1 and -mt2 are specified."
+        print("Only one mate data file supplied; check if both, -mt1 and -mt2 are specified.")
         logging.info("Only one mate data file supplied; check if both, -mt1 and -mt2 are specified.")
         exit(-1)
 
@@ -180,10 +180,10 @@ def main():
     cpu_count = multiprocessing.cpu_count()
 
     if options.cpu_threads <= cpu_count:
-        print "%s CPU cores available, using %s" % (cpu_count, options.cpu_threads)
+        print("%s CPU cores available, using %s" % (cpu_count, options.cpu_threads))
     else:
-        print "Only %s CPU cores available while %s requested, falling back to %s" % \
-              (cpu_count, options.cpu_threads, cpu_count)
+        print("Only %s CPU cores available while %s requested, falling back to %s" % \
+              (cpu_count, options.cpu_threads, cpu_count))
         options.cpu_threads = cpu_count
 
     pool = multiprocessing.Pool(processes=options.cpu_threads)
@@ -233,7 +233,7 @@ def main():
             logging.info("Stranded data mode")
         else:
             logging.info("Non-stranded data, the strand of circRNAs guessed from the strand of host genes")
-            print "WARNING: non-stranded data, the strand of circRNAs guessed from the strand of host genes"
+            print("WARNING: non-stranded data, the strand of circRNAs guessed from the strand of host genes")
 
         # Start de novo circular RNA detection model
         # Create instances
@@ -241,7 +241,7 @@ def main():
         sort = Fc.Sort()
 
         if options.pairedendindependent:
-            print "Please make sure that the read pairs have been mapped both, combined and on a per mate basis"
+            print("Please make sure that the read pairs have been mapped both, combined and on a per mate basis")
             logging.info("Please make sure that the read pairs have been mapped both, combined and on a per mate basis")
 
             # Fix2chimera problem by STAR
@@ -336,7 +336,7 @@ def main():
                 file2filter = options.filteronly[0]
                 coorfile = options.filteronly[1]
                 logging.info("Using files %s and %s for filtering" % (options.filteronly[0], options.filteronly[1]))
-                print "Using files %s and %s for filtering" % (options.filteronly[0], options.filteronly[1])
+                print("Using files %s and %s for filtering" % (options.filteronly[0], options.filteronly[1]))
 
             except IndexError:
                 logging.error("Program exit because input error. Please check the input. If only use the program "
@@ -354,7 +354,7 @@ def main():
             file2filter = options.tmp_dir + "tmp_circCount"
             coorfile = options.tmp_dir + "tmp_coordinates"
             logging.info("Using files _tmp_DCC/tmp_circCount and _tmp_DCC/tmp_coordinates for filtering")
-            print "Using files _tmp_DCC/tmp_circCount and _tmp_DCC/tmp_coordinates for filtering"
+            print("Using files _tmp_DCC/tmp_circCount and _tmp_DCC/tmp_coordinates for filtering")
 
         if options.rep_file:
             rep_file = options.rep_file
@@ -420,17 +420,17 @@ def main():
     if options.gene:
         # import the list of bamfile names as a file
         if not options.bam:
-            print "No BAM files provided (-B) trying to automatically guess BAM file names"
+            print("No BAM files provided (-B) trying to automatically guess BAM file names")
             logging.info("No BAM files provided (-B) trying to automatically guess BAM file names")
             bamfiles = convertjunctionfile2bamfile(options.Input)
             if not bamfiles:
-                print "Could not guess BAM file names, please provides them manually via -B"
+                print("Could not guess BAM file names, please provides them manually via -B")
                 logging.info("Could not guess BAM file names, please provides them manually via -B")
         else:
             bamfiles = remove_empty_lines(options.bam)
 
         if not options.refseq:
-            print "Please provide reference sequence, program will not count host gene expression"
+            print("Please provide reference sequence, program will not count host gene expression")
             logging.warning("Please provide reference sequence, program will not count host gene expression")
 
         if options.refseq:
@@ -446,7 +446,7 @@ def main():
                 logging.error("The following BAM files seem to be not sorted by coordinate or are missing an index:")
                 logging.error(', '.join(unsortedBAMS))
                 print("The following BAM files seem to be not sorted by coordinate or are missing an index:")
-                print(', '.join(unsortedBAMS))
+                print((', '.join(unsortedBAMS)))
                 sys.exit("Error: not all BAM files are sorted by coordinate or are missing indices")
             else:
                 # For each sample (each bamfile), do one host gene count, and then combine to a single table
@@ -504,13 +504,13 @@ def main():
         try:
             os.rmdir(options.tmp_dir)
         except OSError:
-            print "Could not delete temporary folder %s: not empty" % options.tmp_dir
+            print("Could not delete temporary folder %s: not empty" % options.tmp_dir)
             logging.info("Could not delete temporary folder %s: not empty" % options.tmp_dir)
 
         try:
             os.rmdir(options.out_dir)
         except OSError:
-            print "Not deleting output folder %s: contains files" % options.out_dir
+            print("Not deleting output folder %s: contains files" % options.out_dir)
             logging.info("Not deleting output folder %s: contains files" % options.out_dir)
 
         print("Temporary files deleted")
@@ -543,7 +543,7 @@ def checkfile(filename, previousstate):
         sys.exit("ERROR: Required file " + str(filename) + " is missing, exiting")
     # check for file content
     elif os.stat(filename).st_size == 0:
-        print ("WARNING: File " + str(filename) + " is empty!")
+        print(("WARNING: File " + str(filename) + " is empty!"))
         return True
     return previousstate
 
@@ -591,8 +591,8 @@ def checkjunctionfiles(joinedfnames, mate1filenames, mate2filenames, pairedendin
             logging.warning('Input file lists have different length (mate 1 %d, mate 2 %d, joined %d).' % (
             len(mate1filenames), len(mate2filenames), len(joinedfnames)))
 
-            print('Input file lists have different length (mate 1 %d, mate 2 %d, joined %d).' % (
-            len(mate1filenames), len(mate2filenames), len(joinedfnames)))
+            print(('Input file lists have different length (mate 1 %d, mate 2 %d, joined %d).' % (
+            len(mate1filenames), len(mate2filenames), len(joinedfnames))))
 
         if skipcirc:
             logging.warning('Junction files seem empty, skipping circRNA detection module.')
@@ -724,7 +724,7 @@ def checkBAMsorting(bamfiles):
         try:
             bamfile.check_index()
         except ValueError:
-            print "BAM file %s has no index (%s.bai is missing)" % (file, file)
+            print("BAM file %s has no index (%s.bai is missing)" % (file, file))
             logging.info("BAM file %s has no index (%s.bai is missing)" % (file, file))
             unsortedBAMs.append(file)
             break
@@ -769,8 +769,8 @@ def wraphostgenecount(bamfile, tmp_dir, circ_coor, ref, countlinearsplicedreads=
     # create an (temporary) output file based on tid and file name
     output = tmp_dir + "tmp_" + os.path.basename(bamfile) + "_" + tid + "_junction.linear"
 
-    print "Counting host gene expression based on " \
-          "detected and filtered circRNA coordinates for %s" % bamfile
+    print("Counting host gene expression based on " \
+          "detected and filtered circRNA coordinates for %s" % bamfile)
 
     # launch the gene counting
     gc.comb_gen_count(circ_coor, bamfile, ref, output, countlinearsplicedreads)
@@ -787,7 +787,7 @@ def wrapfindcirc(files, tmp_dir, endTol, maxL, minL, strand=True, pairdendindepe
     sort = Fc.Sort()
     indx = id_generator()
     logging.info("started circRNA detection from file %s" % files)
-    print "started circRNA detection from file %s" % files
+    print("started circRNA detection from file %s" % files)
 
     if same:
         circfilename = files + indx + ".circRNA"
@@ -796,44 +796,44 @@ def wrapfindcirc(files, tmp_dir, endTol, maxL, minL, strand=True, pairdendindepe
     if pairdendindependent:
         f.printcircline(files, tmp_dir + "tmp_printcirclines." + indx)
 
-        print "\t=> separating duplicates [%s]" % files
+        print("\t=> separating duplicates [%s]" % files)
         f.sepDuplicates(tmp_dir + "tmp_printcirclines." + indx, tmp_dir + "tmp_duplicates." + indx,
                         tmp_dir + "tmp_nonduplicates." + indx)
 
         # Find small circles
-        print "\t=> locating small circRNAs [%s]" % files
+        print("\t=> locating small circRNAs [%s]" % files)
         f.smallcirc(tmp_dir + "tmp_duplicates." + indx, tmp_dir + "tmp_smallcircs." + indx)
 
         if strand:
             # Find normal circles
-            print "\t=> locating circRNAs (stranded mode) [%s]" % files
+            print("\t=> locating circRNAs (stranded mode) [%s]" % files)
             f.findcirc(tmp_dir + "tmp_nonduplicates." + indx, tmp_dir + "tmp_normalcircs." + indx, strand=True)
         else:
-            print "\t=> locating circRNAs (unstranded mode) [%s]" % files
+            print("\t=> locating circRNAs (unstranded mode) [%s]" % files)
             f.findcirc(tmp_dir + "tmp_nonduplicates." + indx, tmp_dir + "tmp_normalcircs." + indx, strand=False)
 
         # Merge small and normal circles
-        print "\t=> merging circRNAs [%s]" % files
+        print("\t=> merging circRNAs [%s]" % files)
         mergefiles(tmp_dir + "tmp_findcirc." + indx, tmp_dir + "tmp_smallcircs." + indx,
                    tmp_dir + "tmp_normalcircs." + indx)
     else:
         if strand:
-            print "\t=> locating circRNAs (stranded mode) [%s]" % files
+            print("\t=> locating circRNAs (stranded mode) [%s]" % files)
             f.findcirc(files, tmp_dir + "tmp_findcirc." + indx, strand=True)
         else:
-            print "\t=> locating circRNAs (unstranded mode) [%s]" % files
+            print("\t=> locating circRNAs (unstranded mode) [%s]" % files)
             f.findcirc(files, tmp_dir + "tmp_findcirc." + indx, strand=False)
 
     # Sort
     if strand:
-        print "\t=> sorting circRNAs (stranded mode) [%s]" % files
+        print("\t=> sorting circRNAs (stranded mode) [%s]" % files)
         sort.sort_count(tmp_dir + "tmp_findcirc." + indx, circfilename, strand=True)
     else:
-        print "\t=> sorting circRNAs (unstranded mode) [%s]" % files
+        print("\t=> sorting circRNAs (unstranded mode) [%s]" % files)
         sort.sort_count(tmp_dir + "tmp_findcirc." + indx, circfilename, strand=False)
 
     logging.info("finished circRNA detection from file %s" % files)
-    print "finished circRNA detection from file %s" % files
+    print("finished circRNA detection from file %s" % files)
 
     return circfilename
 

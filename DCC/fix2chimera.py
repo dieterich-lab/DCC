@@ -55,10 +55,10 @@ class Fix2Chimera(object):
                 continue
             # check if the row has all fields
             if len(line_split) < 14:
-                print ("WARNING: File " + str(chimeric_junction_mate2) + ", line " + str(linecnt)
-                       + " does not contain all features.")
-                print ("WARNING: " + str(chimeric_junction_mate2) + " is probably corrupt.")
-                print ("WARNING: Offending line: " + str(line))
+                print(("WARNING: File " + str(chimeric_junction_mate2) + ", line " + str(linecnt)
+                       + " does not contain all features."))
+                print(("WARNING: " + str(chimeric_junction_mate2) + " is probably corrupt."))
+                print(("WARNING: Offending line: " + str(line)))
 
             linecnt += 1
 
@@ -110,7 +110,7 @@ class Fix2Chimera(object):
         if not os.path.isfile(merged):
             sys.exit("ERROR: File " + str(merged) + " is missing!")
         elif os.stat(merged).st_size == 0:
-            print ("WARNING: File " + str(merged) + " is empty!")
+            print(("WARNING: File " + str(merged) + " is empty!"))
         else:
             try:
                 inputfile = open(merged, 'r')
