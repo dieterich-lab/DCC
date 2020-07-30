@@ -1,0 +1,4 @@
+pysam
+numpy
+pandas
+Cython
