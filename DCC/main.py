@@ -21,7 +21,7 @@ from . import genecount as Gc
 from .fix2chimera import Fix2Chimera
 
 
-def main():
+def main(circtools_parser=None):
     version = "0.5.0"
 
     parser = argparse.ArgumentParser(prog="DCC", formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -103,6 +103,10 @@ def main():
                        help="Reference sequence FASTA file")
 
     parser.add_argument_group(group)
+
+    # called directly from circtools
+    if circtools_parser:
+        parser = circtools_parser
 
     options = parser.parse_args()
 
