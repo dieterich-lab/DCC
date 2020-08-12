@@ -99,33 +99,33 @@ class Genecount(object):
         start_coordinates.close()
         end_coordinates.close()
 
-        print ('Started linear gene expression counting for %s' % bamfile)
+        print(('Started linear gene expression counting for %s' % bamfile))
 
         start = time.time()
         # mpileup get the read counts of the start and end positions
-        print ("\t=> running mpileup for start positions [%s]" % bamfile)
+        print(("\t=> running mpileup for start positions [%s]" % bamfile))
         mpileup_start = pysam.mpileup(bamfile, '-f', ref, '-l', self.tmp_dir + 'tmp_start_coordinates_' + tid)
         end = time.time() - start
-        print ("\t=> mpileup for start positions for %s took %d seconds" % (bamfile, end))
+        print(("\t=> mpileup for start positions for %s took %d seconds" % (bamfile, end)))
 
         start = time.time()
         # mpileup get the read counts of the start and end positions
-        print ("\t=> running mpileup for end positions [%s]" % bamfile)
+        print(("\t=> running mpileup for end positions [%s]" % bamfile))
         mpileup_end = pysam.mpileup(bamfile, '-f', ref, '-l', self.tmp_dir + 'tmp_end_coordinates_' + tid)
         end = time.time() - start
-        print ("\t=> mpileup for end positions for %s took %d seconds" % (bamfile, end))
+        print(("\t=> mpileup for end positions for %s took %d seconds" % (bamfile, end)))
 
-        print "\t=> gathering read counts for start positions [%s]" % bamfile
+        print("\t=> gathering read counts for start positions [%s]" % bamfile)
         startcount = self.getreadscount(mpileup_start, countmapped=True)
 
-        print "\t=> gathering read counts for end positions [%s]" % bamfile
+        print("\t=> gathering read counts for end positions [%s]" % bamfile)
         endcount = self.getreadscount(mpileup_end, countmapped=True)
 
         # remove tmp files
         # os.remove(self.tmp_dir + 'tmp_start_coordinates_' + tid)
         # os.remove(self.tmp_dir + 'tmp_end_coordinates_' + tid)
 
-        print 'Finished linear gene expression counting for %s' % bamfile
+        print('Finished linear gene expression counting for %s' % bamfile)
 
         return startcount, endcount
 
@@ -194,29 +194,29 @@ class Genecount(object):
         start_coor_1.close()
         end_coor.close()
         end_coor_1.close()
-        print ('Started linear spliced read counting for %s' % bamfile)
+        print(('Started linear spliced read counting for %s' % bamfile))
 
         # mpileup get the number of spliced reads at circle start position and (start-1) position.
 
-        print ("\t=> running mpileup 1 for start positions [%s]" % bamfile)
+        print(("\t=> running mpileup 1 for start positions [%s]" % bamfile))
         mpileup_start = pysam.mpileup(bamfile, '-f', ref, '-l', self.tmp_dir + 'tmp_start_coor_1')
 
-        print ("\t=> running mpileup 2 for start positions [%s]" % bamfile)
+        print(("\t=> running mpileup 2 for start positions [%s]" % bamfile))
         mpileup_start_1 = pysam.mpileup(bamfile, '-f', ref, '-l', self.tmp_dir + 'tmp_start_coor_2')
 
         # mpileup get the number of spliced reads at circle end position and (end+1) position.
-        print ("\t=> running mpileup 1 for end positions [%s]" % bamfile)
+        print(("\t=> running mpileup 1 for end positions [%s]" % bamfile))
         mpileup_end = pysam.mpileup(bamfile, '-f', ref, '-l', self.tmp_dir + 'tmp_end_coor_1')
 
-        print ("\t=> running mpileup 2 for end positions [%s]" % bamfile)
+        print(("\t=> running mpileup 2 for end positions [%s]" % bamfile))
         mpileup_end_1 = pysam.mpileup(bamfile, '-f', ref, '-l', self.tmp_dir + 'tmp_end_coor_2')
 
         # get count
 
-        print "\t=> gathering read counts for start positions [%s]" % bamfile
+        print("\t=> gathering read counts for start positions [%s]" % bamfile)
         startcount = self.submpileup(self.getreadscount(mpileup_start_1), self.getreadscount(mpileup_start))
 
-        print "\t=> gathering read counts for end positions [%s]" % bamfile
+        print("\t=> gathering read counts for end positions [%s]" % bamfile)
         endcount = self.submpileup(self.getreadscount(mpileup_end), self.getreadscount(mpileup_end_1), left=False)
 
         # remove tmp files
@@ -225,7 +225,7 @@ class Genecount(object):
         # os.remove(self.tmp_dir + 'tmp_end_coor')
         # os.remove(self.tmp_dir + 'tmp_end_coor_1')
 
-        print 'Finished linear spliced read counting for %s' % bamfile
+        print('Finished linear spliced read counting for %s' % bamfile)
 
         return startcount, endcount
 
@@ -266,7 +266,7 @@ class Genecount(object):
             # call genecount to get the start and end positon read counts
             tmp_start, tmp_end = self.genecount(circ_coor, bamfile, ref, tid)
 
-        print 'Ended linear gene expression counting %s' % bamfile
+        print('Ended linear gene expression counting %s' % bamfile)
         logging.info('Ended linear gene expression counting %s' % bamfile)
 
         for line in tmp_start:
@@ -314,6 +314,6 @@ class Genecount(object):
         # tmp_end.close()
         count_table.close()
 
-        print 'Ended post processing %s' % bamfile
+        print('Ended post processing %s' % bamfile)
         logging.info('Ended post processing %s' % bamfile)
         return tid

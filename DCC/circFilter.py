@@ -4,7 +4,7 @@ import sys
 
 import HTSeq
 
-from IntervalTree import IntervalTree
+from .IntervalTree import IntervalTree
 
 
 ##########################
@@ -63,7 +63,7 @@ class Circfilter(object):
 
     # Do filtering
     def filtercount(self, count, indx):
-        print 'Filtering by read counts'
+        print('Filtering by read counts')
         sel = []  # store the passed filtering rows
         for itm in range(len(count)):
             if indx[itm][4] == '0':
@@ -117,7 +117,7 @@ class Circfilter(object):
         np.savetxt(self.tmp_dir + 'tmp_unsortedWithChrM', nonrep, delimiter='\t', newline='\n', fmt='%s')
 
     def removeChrM(self, withChrM):
-        print 'Remove ChrM'
+        print('Remove ChrM')
         unremoved = open(withChrM, 'r').readlines()
         removed = []
         for lines in unremoved:

@@ -35,9 +35,9 @@ class Combine(object):
             onefile.close()
 
         if strand:
-            coors = ['\t'.join(key.split('\t')[:-1]) + value for key, value in coorsDict.iteritems()]
+            coors = ['\t'.join(key.split('\t')[:-1]) + value for key, value in coorsDict.items()]
         else:
-            coors = ['{}{}'.format(key, value) for key, value in coorsDict.iteritems()]
+            coors = ['{}{}'.format(key, value) for key, value in coorsDict.items()]
 
         coorsSorted = self.sortBed(coors, retList=True)
         for itm in coorsSorted:
