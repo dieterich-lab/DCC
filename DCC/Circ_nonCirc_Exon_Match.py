@@ -88,8 +88,8 @@ class CircNonCircExon(object):
                 # if gff:
                 # 	custom_exon_id = ';custom_exon_id'+'='+feature.attr['transcript_id']+':'+str(exon_number[feature.attr['transcript_id']])
                 # else:
-                custom_exon_id = '; custom_exon_id' + ' ' + '"' + feature.attr['transcript_id'] + ':' + str(
-                    exon_number[feature.attr['transcript_id']]) + '"'
+                custom_exon_id = '; custom_exon_id' + ' ' + feature.attr['transcript_id'] + ':' + str(
+                    exon_number[feature.attr['transcript_id']])
             except KeyError:
                 # Try assume gff format
                 try:
