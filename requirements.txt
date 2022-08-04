@@ -1,4 +1,4 @@
-pysam
+pysam>=0.16.0.1
 numpy
 pandas
 Cython

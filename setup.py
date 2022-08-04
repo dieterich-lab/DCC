@@ -88,7 +88,7 @@ setup(
     # https://packaging.python.org/en/latest/requirements.html
      install_requires=[
          'HTSeq',
-    #     'pysam >= 0.13',
+         'pysam >= 0.16.0.1',
     #     'numpy',
     #     'pandas',
     #     'Cython'
